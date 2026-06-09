@@ -1,0 +1,53 @@
+[colors]
+aux = "#F99963"
+sys = "#C2E189"
+mod = "#56B7E6"
+
+[default]
+family = "klp_lame"
+variant = "choc_choc"
+font = "FiraCode Nerd Font:style=Medium"
+color = "#1A1A1A"
+primary.size = 4
+primary.color = "white"
+secondary.size = 3
+tertiary.size = 3
+
+[gen.r0]
+kind = "nt"
+
+[[gen.r0.keys]]
+primary.legend = "[{"
+
+[[gen.r0.keys]]
+primary.legend = "!1"
+
+[[gen.r0.keys]]
+primary.legend = "@2"
+
+[[gen.r0.keys]]
+primary.legend = "#3"
+
+[[gen.r0.keys]]
+primary.legend = "$4"
+
+[[gen.r0.keys]]
+primary.legend = "%5"
+
+[[gen.r0.keys]]
+primary.legend = "^6"
+
+[[gen.r0.keys]]
+primary.legend = "&7"
+
+[[gen.r0.keys]]
+primary.legend = "*8"
+
+[[gen.r0.keys]]
+primary.legend = "(9"
+
+[[gen.r0.keys]]
+primary.legend = ")0"
+
+[[gen.r0.keys]]
+primary.legend = "]}"
