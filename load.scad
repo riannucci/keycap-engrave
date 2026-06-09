@@ -5,7 +5,7 @@ keycapFamily = "klp_lame";
 keycapVariant = "choc_choc";
 
 // The name of an entry in the JSON file.
-keycapName = "n";
+keycapKind = "n";
 
 // Rotate keycap before applying legend. No effect for caps without tilt.
 keycapRotate = 0;
@@ -52,7 +52,7 @@ for (entry = caps) {
   echo(str(entry, ": ", caps[entry].stl));
 }
 
-cap = caps[keycapName];
+cap = caps[keycapKind];
 
 module model() {
   rotate([0, 0, keycapRotate])
@@ -61,7 +61,6 @@ module model() {
 
 module legend(legend, font, size, platform, shift, tilt) {
   tm = textmetrics(text=legend, size=size, halign="center", valign="center", font=font);
-  echo(tm);
 
   translate(concat(shift, platform))
     translate([-(tm.size.x / 2), 0, 0])
