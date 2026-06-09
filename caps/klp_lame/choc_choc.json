@@ -14,18 +14,43 @@
     "floor": 1.5,
     "tilt": 15
   },
-  "ns": {
+  "s": {
     "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Saddle.stl",
     "floor": 1.5,
     "tilt": 0
   },
-  "nsh": {
+  "sh": {
     "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Saddle_Homing.stl",
     "floor": 1.5,
     "tilt": 0
   },
   "t": {
     "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Thumb.stl",
+    "floor": 1.5,
+    "tilt": 0
+  },
+  "n1.5": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_1.5U_Normal.stl",
+    "floor": 1.5,
+    "tilt": 0
+  },
+  "s1.5h": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_1.5U_Saddle_H.stl",
+    "floor": 1.5,
+    "tilt": 0
+  },
+  "s1.5v": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_1.5U_Saddle_V.stl",
+    "floor": 1.5,
+    "tilt": 0
+  },
+  "t1.5h": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_1.5U_Thumb_H.stl",
+    "floor": 1.5,
+    "tilt": 0
+  },
+  "t1.5v": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_1.5U_Thumb_V.stl",
     "floor": 1.5,
     "tilt": 0
   }
