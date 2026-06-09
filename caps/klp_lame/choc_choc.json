@@ -10,7 +10,8 @@
     "stl": "Choc_Stem_Choc_Size_Normal_Homing.stl"
   },
   "nt": {
-    "stl": "Choc_Stem_Choc_Size_Normal_Tilted.stl"
+    "stl": "Choc_Stem_Choc_Size_Normal_Tilted.stl",
+    "tilt": 15
   },
   "s": {
     "stl": "Choc_Stem_Choc_Size_Saddle.stl"
