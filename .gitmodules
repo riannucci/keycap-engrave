@@ -1,0 +1,9 @@
+[submodule "caps/subliminal_contradiction/upstream"]
+	path = caps/subliminal_contradiction/upstream
+	url = https://github.com/pseudoku/Subliminal-Contradiction
+[submodule "caps/klp_lame/upstream"]
+	path = caps/klp_lame/upstream
+	url = https://github.com/braindefender/KLP-Lame-Keycaps
+[submodule "caps/clp_keycaps/upstream"]
+	path = caps/clp_keycaps/upstream
+	url = https://github.com/vvhg1/clp-keycaps
