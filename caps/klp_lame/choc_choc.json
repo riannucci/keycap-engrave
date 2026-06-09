@@ -1,0 +1,32 @@
+{
+  "n": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Normal.stl",
+    "floor": 1.5,
+    "tilt": 0
+  },
+  "nh": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Normal_Homing.stl",
+    "floor": 1.5,
+    "tilt": 0
+  },
+  "nt": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Normal_Tilted.stl",
+    "floor": 1.5,
+    "tilt": 15
+  },
+  "ns": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Saddle.stl",
+    "floor": 1.5,
+    "tilt": 0
+  },
+  "nsh": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Saddle_Homing.stl",
+    "floor": 1.5,
+    "tilt": 0
+  },
+  "t": {
+    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Thumb.stl",
+    "floor": 1.5,
+    "tilt": 0
+  }
+}
