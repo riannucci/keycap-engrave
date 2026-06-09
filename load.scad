@@ -7,8 +7,8 @@ keycapVariant = "choc_choc";
 // The name of an entry in the JSON file.
 keycapName = "n";
 
-// Rotate keycap 180 before applying legend. No effect for caps without tilt.
-keycapFlip = false;
+// Rotate keycap before applying legend. No effect for caps without tilt.
+keycapRotate = 0;
 
 // Color of the keycap.
 keycapColor = "#1a1a1a";
@@ -55,7 +55,7 @@ for (entry = caps) {
 cap = caps[keycapName];
 
 module model() {
-  rotate([0, 0, keycapFlip ? 180 : 0])
+  rotate([0, 0, keycapRotate])
     import(str("caps/", keycapFamily, "/upstream/", cap["stl"]), center=true);
 }
 
@@ -65,7 +65,7 @@ module legend(legend, font, size, platform, shift, tilt) {
 
   translate(concat(shift, platform))
     translate([-(tm.size.x / 2), 0, 0])
-      rotate([keycapFlip ? -tilt : tilt, 0, 0])
+      rotate([keycapRotate ? -tilt : tilt, 0, 0])
         translate([tm.size.x / 2, 0, 0])
           linear_extrude(height=15)
             text(text=legend, size=size, halign="center", valign="center", font=font);
