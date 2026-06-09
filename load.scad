@@ -49,18 +49,34 @@ legTrtVecXY = [3, -3];
 caps = import(str("caps/", keycapFamily, "/", keycapVariant, ".json"));
 echo("Found caps:");
 for (entry = caps) {
-  echo(str(entry, ": ", caps[entry].stl));
+  if (entry != "$default") {
+    echo(str(entry, ": ", caps[entry].stl));
+  }
 }
 
+default = caps["$default"];
 cap = caps[keycapKind];
 
+function get(key, fallback) =
+  (
+    !is_undef(cap[key]) ? cap[key]
+    : (
+      !is_undef(default[key]) ? default[key] : fallback
+    )
+  );
+
 module model() {
+  path = is_undef(default.rootPath) ? cap.stl : str(default.rootPath, cap.stl);
+
   rotate([0, 0, keycapRotate])
-    import(str("caps/", keycapFamily, "/upstream/", cap["stl"]), center=true);
+    import(str("caps/", keycapFamily, "/upstream/", path), center=true);
 }
 
-module legend(legend, font, size, platform, shift, tilt) {
+module legend(legend, font, size, shift) {
   tm = textmetrics(text=legend, size=size, halign="center", valign="center", font=font);
+
+  tilt = get("tilt", 0);
+  platform = get(key="floor", fallback=0);
 
   translate(concat(shift, platform))
     translate([-(tm.size.x / 2), 0, 0])
@@ -73,26 +89,26 @@ module legend(legend, font, size, platform, shift, tilt) {
 render() {
   color(keycapColor) difference() {
       model();
-      legend(legPri, legPriFont, legPriSize, cap.floor, legPriVecXY, cap.tilt);
-      legend(legSec, legSecFont, legSecSize, cap.floor, legSecVecXY, cap.tilt);
-      legend(legTrt, legTrtFont, legTrtSize, cap.floor, legTrtVecXY, cap.tilt);
+      legend(legPri, legPriFont, legPriSize, legPriVecXY);
+      legend(legSec, legSecFont, legSecSize, legSecVecXY);
+      legend(legTrt, legTrtFont, legTrtSize, legTrtVecXY);
     }
 
   color(legPriColor)
     intersection() {
       model();
-      legend(legPri, legPriFont, legPriSize, cap.floor, legPriVecXY, cap.tilt);
+      legend(legPri, legPriFont, legPriSize, legPriVecXY);
     }
 
   color(legSecColor)
     intersection() {
       model();
-      legend(legSec, legSecFont, legSecSize, cap.floor, legSecVecXY, cap.tilt);
+      legend(legSec, legSecFont, legSecSize, legSecVecXY);
     }
 
   color(legTrtColor)
     intersection() {
       model();
-      legend(legTrt, legTrtFont, legTrtSize, cap.floor, legTrtVecXY, cap.tilt);
+      legend(legTrt, legTrtFont, legTrtSize, legTrtVecXY);
     }
 }

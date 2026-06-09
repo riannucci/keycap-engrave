@@ -1,57 +1,39 @@
 {
+  "$default": {
+    "rootPath": "STL/Choc Stem + Choc Size/",
+    "floor": 1.5
+  },
   "n": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Normal.stl",
-    "floor": 1.5,
-    "tilt": 0
+    "stl": "Choc_Stem_Choc_Size_Normal.stl"
   },
   "nh": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Normal_Homing.stl",
-    "floor": 1.5,
-    "tilt": 0
+    "stl": "Choc_Stem_Choc_Size_Normal_Homing.stl"
   },
   "nt": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Normal_Tilted.stl",
-    "floor": 1.5,
-    "tilt": 15
+    "stl": "Choc_Stem_Choc_Size_Normal_Tilted.stl"
   },
   "s": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Saddle.stl",
-    "floor": 1.5,
-    "tilt": 0
+    "stl": "Choc_Stem_Choc_Size_Saddle.stl"
   },
   "sh": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Saddle_Homing.stl",
-    "floor": 1.5,
-    "tilt": 0
+    "stl": "Choc_Stem_Choc_Size_Saddle_Homing.stl"
   },
   "t": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_Thumb.stl",
-    "floor": 1.5,
-    "tilt": 0
+    "stl": "Choc_Stem_Choc_Size_Thumb.stl"
   },
   "n1.5": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_1.5U_Normal.stl",
-    "floor": 1.5,
-    "tilt": 0
+    "stl": "Choc_Stem_Choc_Size_1.5U_Normal.stl"
   },
   "s1.5h": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_1.5U_Saddle_H.stl",
-    "floor": 1.5,
-    "tilt": 0
+    "stl": "Choc_Stem_Choc_Size_1.5U_Saddle_H.stl"
   },
   "s1.5v": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_1.5U_Saddle_V.stl",
-    "floor": 1.5,
-    "tilt": 0
+    "stl": "Choc_Stem_Choc_Size_1.5U_Saddle_V.stl"
   },
   "t1.5h": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_1.5U_Thumb_H.stl",
-    "floor": 1.5,
-    "tilt": 0
+    "stl": "Choc_Stem_Choc_Size_1.5U_Thumb_H.stl"
   },
   "t1.5v": {
-    "stl": "STL/Choc Stem + Choc Size/Choc_Stem_Choc_Size_1.5U_Thumb_V.stl",
-    "floor": 1.5,
-    "tilt": 0
+    "stl": "Choc_Stem_Choc_Size_1.5U_Thumb_V.stl"
   }
 }
