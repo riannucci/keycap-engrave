@@ -14,14 +14,17 @@
     "tilt": 15
   },
   "s": {
-    "stl": "Choc_Stem_Choc_Size_Saddle.stl"
+    "stl": "Choc_Stem_Choc_Size_Saddle.stl",
+    "floor": 1.6
   },
   "st": {
     "stl": "Choc_Stem_Choc_Size_Saddle_Tilted.stl",
-    "tilt": 15
+    "tilt": 15,
+    "floor": 1.6
   },
   "sh": {
-    "stl": "Choc_Stem_Choc_Size_Saddle_Homing.stl"
+    "stl": "Choc_Stem_Choc_Size_Saddle_Homing.stl",
+    "floor": 1.6
   },
   "t": {
     "stl": "Choc_Stem_Choc_Size_Thumb.stl"
@@ -30,15 +33,19 @@
     "stl": "Choc_Stem_Choc_Size_1.5U_Normal.stl"
   },
   "s1.5h": {
-    "stl": "Choc_Stem_Choc_Size_1.5U_Saddle_H.stl"
+    "stl": "Choc_Stem_Choc_Size_1.5U_Saddle_H.stl",
+    "floor": 1.6
   },
   "s1.5v": {
-    "stl": "Choc_Stem_Choc_Size_1.5U_Saddle_V.stl"
+    "stl": "Choc_Stem_Choc_Size_1.5U_Saddle_V.stl",
+    "floor": 1.6
   },
   "t1.5h": {
-    "stl": "Choc_Stem_Choc_Size_1.5U_Thumb_H.stl"
+    "stl": "Choc_Stem_Choc_Size_1.5U_Thumb_H.stl",
+    "floor": 1.6
   },
   "t1.5v": {
-    "stl": "Choc_Stem_Choc_Size_1.5U_Thumb_V.stl"
+    "stl": "Choc_Stem_Choc_Size_1.5U_Thumb_V.stl",
+    "floor": 1.6
   }
 }
