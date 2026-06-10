@@ -1,7 +1,7 @@
 {
   "$default": {
     "rootPath": "STL/Choc Stem + Choc Size/",
-    "floor": 1.5
+    "floor": 1
   },
   "n": {
     "stl": "Choc_Stem_Choc_Size_Normal.stl"
@@ -15,6 +15,10 @@
   },
   "s": {
     "stl": "Choc_Stem_Choc_Size_Saddle.stl"
+  },
+  "st": {
+    "stl": "Choc_Stem_Choc_Size_Saddle_Tilted.stl",
+    "tilt": 15
   },
   "sh": {
     "stl": "Choc_Stem_Choc_Size_Saddle_Homing.stl"
