@@ -40,7 +40,7 @@ PrimaryFont = "FiraCode Nerd Font:style=Medium";
 // Size.
 PrimarySize = 4; // [1:0.01:6]
 // Offset (X, Y) from center.
-PrimaryVecXY = [0, 3];
+PrimaryVecXY = [0, 3]; // [-4:.1:4]
 // Skip rendering the legend.
 PrimarySkip = false;
 // Rendering the legend as translucent.
@@ -57,7 +57,7 @@ SecondaryFont = "FiraCode Nerd Font:style=Medium";
 // Size
 SecondarySize = 3; // [1:0.01:6]
 // Offset (X, Y) from center.
-SecondaryVecXY = [-3, -3];
+SecondaryVecXY = [-3, -3]; // [-4:.1:4]
 // Skip rendering the legend.
 SecondarySkip = false;
 // Rendering the legend as translucent.
@@ -74,7 +74,7 @@ TertiaryFont = "FiraCode Nerd Font:style=Medium";
 // Size
 TertiarySize = 3; // [1:0.01:6]
 // Offset (X, Y) from center.
-TertiaryVecXY = [3, -3];
+TertiaryVecXY = [3, -3]; // [-4:.1:4]
 // Skip rendering the legend.
 TertiarySkip = false;
 // Rendering the legend as translucent.
@@ -151,9 +151,9 @@ module flopped() {
 }
 
 legends = [
-  [PrimaryLegend, PrimaryColor, PrimaryFont, PrimarySize, PrimaryVecXY, PrimarySkip, PrimaryTranslucent],
-  [SecondaryLegend, SecondaryColor, SecondaryFont, SecondarySize, SecondaryVecXY, SecondarySkip, SecondaryTranslucent],
-  [TertiaryLegend, TertiaryColor, TertiaryFont, TertiarySize, TertiaryVecXY, TertiarySkip, TertiaryTranslucent],
+  [PrimaryLegend, PrimaryColor, PrimaryFont, PrimarySize, PrimaryVecXY],
+  [SecondaryLegend, SecondaryColor, SecondaryFont, SecondarySize, SecondaryVecXY],
+  [TertiaryLegend, TertiaryColor, TertiaryFont, TertiarySize, TertiaryVecXY, TertiarySkip],
 ];
 
 module legend(leg, truncated = false) {
@@ -162,7 +162,6 @@ module legend(leg, truncated = false) {
   font = leg[2];
   size = leg[3];
   shift = leg[4];
-  skip = leg[5];
 
   module shifted() {
     translate([shift[0], shift[1], 0]) children();
@@ -211,7 +210,7 @@ module legend(leg, truncated = false) {
     }
   }
 
-  if (!skip && text_val != "") {
+  if (text_val != "") {
     color(colorr) if (EngraveDepth == 0) {
       intersection() {
         // Extrude it back along the Z axis. Now we have a correctly
@@ -272,12 +271,12 @@ if (!KeySkip) {
 }
 
 // Each legend generated and colored separately.
-if (EngraveDepth == 0 || KeepEngraved) {
+if (!PrimarySkip && (EngraveDepth == 0 || KeepEngraved)) {
   maybeRender(PrimaryTranslucent) legend(legends[0], truncated=true);
 }
-if (EngraveDepth == 0 || KeepEngraved) {
+if (!SecondarySkip && (EngraveDepth == 0 || KeepEngraved)) {
   maybeRender(SecondaryTranslucent) legend(legends[1], truncated=true);
 }
-if (EngraveDepth == 0 || KeepEngraved) {
+if (!TertiarySkip && (EngraveDepth == 0 || KeepEngraved)) {
   maybeRender(TertiaryTranslucent) legend(legends[2], truncated=true);
 }
