@@ -185,8 +185,15 @@ module legend(leg, truncated = false) {
   //
   // Pancake must be flopped to get it back into it's ultimate location.
   module pancake(thickness) {
+    // TODO: It's also possible to do this by projecting the model, extruding it
+    // up to the floor, then using the union of that plus the model to produce a
+    // cutting tool whose top surface is the same as the keycap surface. The 
+    // benefit of this would be that for very deep engravings, they can currently
+    // have their bottom interact with the bottom of the model, and this weird
+    // geometry persists after translating the pancake up into the engraving 
+    // position.
     intersection() {
-      // Move it down a smidge to embed it in the cap.
+      // Move it down by thickness to embed it in the cap.
       translate([0, 0, thickness])
         // calculate a letter tower starting at the model face and
         // going up. 
