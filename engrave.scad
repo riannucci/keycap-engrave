@@ -14,11 +14,14 @@ KeyColor = "#1a1a1a";
 
 /* [Global Options] */
 
-// Rotate legend.
-RotateLegend = 0; // [0:359]
+// Rotate all legends.
+RotateLegendSet = 0; // [0:359]
 
 // Makes keycap body translucent in preview. Useful for finding the "floor" when adding new keycap JSONs.
-TranslucentBody = false;
+KeyTranslucent = false;
+
+// Skips rendering the keycap entirely.
+KeySkip = false;
 
 /* [Primary Legend] */
 
@@ -34,6 +37,8 @@ PrimarySize = 4;
 PrimaryVecXY = [0, 3];
 // Skip rendering the legend.
 PrimarySkip = false;
+// Rendering the legend as translucent.
+PrimaryTranslucent = false;
 
 /* [Secondary Legend] */
 
@@ -49,6 +54,8 @@ SecondarySize = 3;
 SecondaryVecXY = [-3, -3];
 // Skip rendering the legend.
 SecondarySkip = false;
+// Rendering the legend as translucent.
+SecondaryTranslucent = false;
 
 /* [Tertiary Legend] */
 
@@ -64,6 +71,8 @@ TertiarySize = 3;
 TertiaryVecXY = [3, -3];
 // Skip rendering the legend.
 TertiarySkip = false;
+// Rendering the legend as translucent.
+TertiaryTranslucent = false;
 
 caps = import(str("caps/", KeyFamily, "/", KeyVariant, ".json"));
 
@@ -115,15 +124,15 @@ module safezone() {
 }
 
 // Flipped orients its children by tilting them by the keycap's tilt, then
-// rotating them around Z by the inverse of `RotateLegend`.
+// rotating them around Z by the inverse of `RotateLegendSet`.
 //
 // When visualizing this, it will rotate the keycap so it's face is directly
 // up along Z, and then rotating it so that letters stamped into it will 
-// appear with `RotateLegend`.
+// appear with `RotateLegendSet`.
 //
 // The effects of flipped are exactly reversed by `flopped`.
 module flipped() {
-  rotate([0, 0, RotateLegend])
+  rotate([0, 0, RotateLegendSet])
     rotate([-get("tilt", 0), 0, 0])
       children();
 }
@@ -131,14 +140,14 @@ module flipped() {
 // Flopped is the exact inverse of flipped.
 module flopped() {
   rotate([get("tilt", 0), 0, 0])
-    rotate([0, 0, -RotateLegend])
+    rotate([0, 0, -RotateLegendSet])
       children();
 }
 
 legends = [
-  [PrimaryLegend, PrimaryColor, PrimaryFont, PrimarySize, PrimaryVecXY, PrimarySkip],
-  [SecondaryLegend, SecondaryColor, SecondaryFont, SecondarySize, SecondaryVecXY, SecondarySkip],
-  [TertiaryLegend, TertiaryColor, TertiaryFont, TertiarySize, TertiaryVecXY, TertiarySkip],
+  [PrimaryLegend, PrimaryColor, PrimaryFont, PrimarySize, PrimaryVecXY, PrimarySkip, PrimaryTranslucent],
+  [SecondaryLegend, SecondaryColor, SecondaryFont, SecondarySize, SecondaryVecXY, SecondarySkip, SecondaryTranslucent],
+  [TertiaryLegend, TertiaryColor, TertiaryFont, TertiarySize, TertiaryVecXY, TertiarySkip, TertiaryTranslucent],
 ];
 
 module legend(leg, truncated = false) {
@@ -209,23 +218,25 @@ module legend(leg, truncated = false) {
 
 // 1. Base keycap with legends carved out.
 
-module renderBody() {
-  if (TranslucentBody) {
+module maybeRender(translucent = false) {
+  if (translucent) {
     %render() children();
   } else {
     render() children();
   }
 }
 
-renderBody() color(KeyColor) difference() {
-      model();
+if (!KeySkip) {
+  maybeRender(translucent=KeyTranslucent) color(KeyColor) difference() {
+        model();
 
-      legend(legends[0]);
-      legend(legends[1]);
-      legend(legends[2]);
-    }
+        legend(legends[0]);
+        legend(legends[1]);
+        legend(legends[2]);
+      }
+}
 
 // Each legend generated and colored separately.
-render() legend(legends[0], truncated=true);
-render() legend(legends[1], truncated=true);
-render() legend(legends[2], truncated=true);
+maybeRender(PrimaryTranslucent) legend(legends[0], truncated=true);
+maybeRender(SecondaryTranslucent) legend(legends[1], truncated=true);
+maybeRender(TertiaryTranslucent) legend(legends[2], truncated=true);
