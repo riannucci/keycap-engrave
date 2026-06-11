@@ -1,0 +1,271 @@
+#!/usr/bin/env python3
+
+import argparse
+import collections
+import copy
+import dataclasses
+import itertools
+import json
+import tomllib
+import typing
+
+Variant = typing.Literal["Primary", "Secondary", "Tertiary"]
+
+
+def parse_variant(v: str | Variant) -> Variant:
+    match v.capitalize():
+        case "Primary":
+            return "Primary"
+        case "Secondary":
+            return "Secondary"
+        case "Tertiary":
+            return "Tertiary"
+    raise ValueError(f"Unknown variant {v!r}")
+
+
+@dataclasses.dataclass
+class Legend:
+    variant: Variant
+
+    legend: str = ""
+    color: str = ""
+    font: str = ""
+    size: float = 0
+    shiftXY: None | tuple[float, float] = None
+    skip: bool = False
+    translucent: bool = False
+
+    def to_dict(self, key: Keycap, colormap: typing.Callable[[str], str]):
+        return {
+            f"{self.variant}Legend": self.legend,
+            f"{self.variant}Color": colormap(self.color or key.color),
+            f"{self.variant}Font": self.font or key.font,
+            f"{self.variant}Size": self.size,
+            f"{self.variant}VecXY": self.shiftXY,
+            f"{self.variant}Skip": self.skip,
+            f"{self.variant}Translucent": self.translucent,
+        }
+
+    @staticmethod
+    def from_data(variant: str | Variant, data: dict) -> Legend:
+        return Legend(parse_variant(variant)).with_data(data)
+
+    def with_data(self, data: dict) -> Legend:
+        return dataclasses.replace(self, **data)
+
+
+@dataclasses.dataclass
+class Keycap:
+    family: str = dataclasses.field(default="", metadata={"p": "families"})
+    variant: str = dataclasses.field(default="", metadata={"p": "variants"})
+    kind: str = dataclasses.field(default="", metadata={"p": "kinds"})
+    color: str = dataclasses.field(default="", metadata={"p": "colors"})
+    font: str = dataclasses.field(default="", metadata={"p": "fonts"})
+
+    primary: Legend = dataclasses.field(
+        default_factory=lambda: Legend("Primary"),
+        metadata={"p": "primaries"},
+    )
+    secondary: Legend = dataclasses.field(
+        default_factory=lambda: Legend("Secondary"),
+        metadata={"p": "secondaries"},
+    )
+    tertiary: Legend = dataclasses.field(
+        default_factory=lambda: Legend("Tertiary"),
+        metadata={"p": "tertiaries"},
+    )
+
+    rotate: float = dataclasses.field(default=0, metadata={"p": "rotates"})
+    translucent: bool = dataclasses.field(default=False, metadata={"p": "translucents"})
+    skip: bool = dataclasses.field(default=False, metadata={"p": "skips"})
+    engraveDepth: float = dataclasses.field(default=0, metadata={"p": "engraveDepths"})
+    keepEngraved: bool = dataclasses.field(
+        default=False, metadata={"p": "keepEngraveds"}
+    )
+
+    def to_dict(
+        self, colormap: typing.Callable[[str], str]
+    ) -> typing.Mapping[str, typing.Any]:
+        ret = {
+            "KeyFamily": self.family,
+            "KeyVariant": self.variant,
+            "KeyKind": self.kind,
+            "KeyColor": colormap(self.color),
+            "RotateLegendSet": self.rotate,
+            "KeyTranslucent": self.translucent,
+            "KeySkip": self.skip,
+            "EngraveDepth": self.engraveDepth,
+            "KeepEngraved": self.keepEngraved,
+        }
+        if self.primary.legend:
+            ret.update(self.primary.to_dict(self, colormap))
+        if self.secondary.legend:
+            ret.update(self.secondary.to_dict(self, colormap))
+        if self.tertiary.legend:
+            ret.update(self.tertiary.to_dict(self, colormap))
+        return {k: v for k, v in ret.items() if v}
+
+    @staticmethod
+    def from_data(data: dict) -> Keycap:
+        return Keycap().with_data(data)
+
+    def with_data(self, data: dict) -> Keycap:
+        data = copy.deepcopy(data)
+        for leg in ("primary", "secondary", "tertiary"):
+            if dat := data.pop(leg, None):
+                data[leg] = getattr(self, leg).with_data(dat)
+        return dataclasses.replace(self, **data)
+
+    @property
+    def should_output(self):
+        return self.primary.legend or self.secondary.legend or self.tertiary.legend
+
+    @property
+    def batch_key(self) -> tuple[typing.Any, ...]:
+        key: list[typing.Any] = [self.color]
+        for leg in (self.primary, self.secondary, self.tertiary):
+            if leg.legend:
+                key.append(leg.color or self.color)
+        if self.rotate:
+            key.append(self.rotate)
+        return tuple(key)
+
+
+def depluralize(
+    data: dict[str, list[typing.Any]],
+) -> typing.Iterable[dict[str, typing.Any]]:
+    return (dict(zip(data.keys(), values)) for values in zip(*data.values()))
+
+
+@dataclasses.dataclass
+class Row:
+    name: str
+
+    keys: list[Keycap]
+
+    @staticmethod
+    def from_data(name: str, default: Keycap, data: dict) -> Row:
+        # This data is both a Keycap and also has plurals of all Keycap fields.
+        # The plurals are dicts whose keys are Keycap fields, and whose values are
+        # lists. All plural values MUST have the same length, or this will raise
+        # an error. We will keep all keys which have a legend.
+        legend_plurals: dict[str, dict[str, list[typing.Any]]] = (
+            collections.defaultdict(dict)
+        )
+        plurals: dict[str, list[typing.Any]] = collections.defaultdict(list)
+        singulars = {}
+        for field in dataclasses.fields(Keycap):
+            if (plural := field.metadata["p"]) in data:
+                vals: list[typing.Any] | dict[str, list[typing.Any]] = data.pop(plural)
+                if isinstance(vals, list):
+                    plurals[field.name] = vals
+                else:
+                    legend_plurals[field.name] = vals
+
+            if field.name in data:
+                singulars[field.name] = data.pop(field.name)
+        if data:
+            ValueError(f"Unrecognized data: {data!r}")
+
+        base = default.with_data(singulars)
+
+        # plurals is a dict of either Keycap.field -> Keycap.field value.
+        # for 'primary', 'secondary' and 'tertiary', this is Keycap.field -> dict[Legend.field, Legend.field valueS].
+        # All value arrays must have the same length.
+        # The goal is to get this to be a flat list of Keycaps.
+
+        keys = [base.with_data(item) for item in depluralize(plurals)]
+        key_fragments: dict[str, list[dict]] = collections.defaultdict(list)
+        legend_fragments = (
+            (key, partial_legend)
+            for key, legend_plural in legend_plurals.items()
+            for partial_legend in depluralize(legend_plural)
+        )
+        for key_key, fragment in legend_fragments:
+            key_fragments[key_key].append(fragment)
+
+        if keys:
+            for i, fragment in enumerate(depluralize(key_fragments)):
+                keys[i] = keys[i].with_data(fragment)
+        else:
+            keys = [base.with_data(item) for item in depluralize(key_fragments)]
+
+        if base.should_output:
+            keys.append(base)
+
+        return Row(name, keys)
+
+
+@dataclasses.dataclass
+class BatchConfig:
+    size: int = 10
+
+
+@dataclasses.dataclass
+class Global:
+    rows: dict[str, Row]
+
+    default: Keycap = dataclasses.field(default_factory=Keycap)
+
+    batch: BatchConfig = dataclasses.field(default_factory=BatchConfig)
+
+    colors: dict[str, str] = dataclasses.field(default_factory=dict)
+
+    @staticmethod
+    def from_data(data: dict) -> Global:
+        batch = BatchConfig(**data.pop("batch", {}))
+        colors = data.pop("colors", {})
+        default = Keycap.from_data(data.pop("default", {}))
+        rows = {}
+        for rowName, row in data.pop("rows").items():
+            rows[rowName] = Row.from_data(rowName, default, row)
+        if data:
+            ValueError(f"Unrecognized data: {data!r}")
+        return Global(rows, default, batch, colors)
+
+    def colormap(self, color: str) -> str:
+        if color.startswith("$"):
+            return self.colors[color[1:]]
+        return color
+
+    def batched(self) -> list[dict[str, Keycap]]:
+        ret = {}
+        for rowName, row in self.rows.items():
+            for i, cap in enumerate(row.keys):
+                ret[f"{rowName}_{i}"] = cap
+        if not self.batch.size:
+            return [ret]
+        by_color: dict[tuple[typing.Any, ...], list[tuple[str, Keycap]]] = (
+            collections.defaultdict(list)
+        )
+        for name, cap in ret.items():
+            by_color[cap.batch_key].append((name, cap))
+        batches = []
+        for name_caps in by_color.values():
+            batches.extend(
+                dict(batch) for batch in itertools.batched(name_caps, self.batch.size)
+            )
+        return batches
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Convert Keycap TOML to OpenSCAD Parameter Set JSON"
+    )
+    parser.add_argument("input_toml", help="Path to the input TOML file")
+    args: argparse.Namespace = parser.parse_args()
+
+    with open(args.input_toml, "rb") as f:
+        parsed = Global.from_data(tomllib.load(f))
+
+    presets = {}
+    for i, batch in enumerate(parsed.batched()):
+        for name, cap in batch.items():
+            presets[f"batch{i}/{name}"] = cap.to_dict(parsed.colormap)
+
+    with open("engrave.json", "w") as f:
+        json.dump({"parameterSets": presets, "fileFormatVersion": "1"}, f)
+
+
+if __name__ == "__main__":
+    main()

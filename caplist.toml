@@ -1,4 +1,9 @@
+[batch]
+size = 6
+
 [colors]
+cap = "#1A1A1A"
+prim = "white"
 aux = "#F99963"
 sys = "#C2E189"
 mod = "#56B7E6"
@@ -7,47 +12,54 @@ mod = "#56B7E6"
 family = "klp_lame"
 variant = "choc_choc"
 font = "FiraCode Nerd Font:style=Medium"
-color = "#1A1A1A"
+color = "$cap"
 primary.size = 4
-primary.color = "white"
+primary.color = "$prim"
 secondary.size = 3
+secondary.color = "$aux"
 tertiary.size = 3
+tertiary.color = "$sys"
 
-[gen.r0]
+[rows.r0]
 kind = "nt"
+primaries.legend = ["[{", "!1", "@2", "#3", "$4", "%5", "^6", "&7", "*8", "(9", ")0", "]}"]
 
-[[gen.r0.keys]]
-primary.legend = "[{"
+[rows.r1]
+kind = "n"
+tertiary.color   = "$sys"
 
-[[gen.r0.keys]]
-primary.legend = "!1"
+primaries.legend   = ["󰌒", "Q", "W", "F", "P", "B", "J", "L", "U", "Y", ":;", "_-"]
+secondaries.legend = ["󰝝", "󰖨", "",  "",  "",  "",  "",  "",  "",  "",  "",   ""]
+tertiaries.legend  = ["", "",  "",  "",  "",  "󱐥", "",  "",  "",  "",  "",   ""]
 
-[[gen.r0.keys]]
-primary.legend = "@2"
+[rows.r2]
+kind = "n"
 
-[[gen.r0.keys]]
-primary.legend = "#3"
+# Override T and N as 'normal homing' key kinds.
+kinds             = ["",   "",  "",  "",  "nh", "",  "",  "nh", "",  "",  "",  ""]
+primaries.legend   = ["`~", "A", "R", "S", "T",  "G", "M", "N",  "E", "I", "O", "'\""]
+secondaries.legend = ["󰝞",  "", "󰒮", "󰐎", "󰒭",  "",  "",  "󰁍",  "󰁅", "󰁝", "󰁔", ""]
+tertiaries.legend  = ["󰜉",  "󰘴", "󰘵", "󰘳", "󰘶",  "", "",  "󰘶",  "󰘳", "󰘵", "󰘴", "󰜉"]
+tertiaries.color   = ["",  "$mod", "$mod", "$mod", "$mod", "", "", "$mod",  "$mod", "$mod", "$mod", ""]
 
-[[gen.r0.keys]]
-primary.legend = "$4"
+[rows.r3]
+kind = "nt"
+rotate = 180
 
-[[gen.r0.keys]]
-primary.legend = "%5"
+primaries.legend   = ["\\|",  "Z", "X", "C", "D", "V", "K",  "H",  ",<", ".>", "/?", "+="]
+secondaries.legend = ["󰝟",    "󰍽", "",  "󰓛", "",  "",  "",   "",   "",   "",   "",   ""]
+tertiaries.legend  = ["",    "",  "",  "",  "",  "", "󰂱¹", "󰂱²", "󰂱³", "󰂱⁴", "󰂱⁵", "󰂲"]
+tertiaries.color   = ["$mod", "",  "",  "",  "",  "",  "",   "",   "",   "",   "",   ""]
 
-[[gen.r0.keys]]
-primary.legend = "^6"
+[rows.r4]
+kind = "st"
 
-[[gen.r0.keys]]
-primary.legend = "&7"
+primaries.legend   = ["",  "",  "󰭜", "HYP", "HYP", "󱁐", "",  ""]
+secondaries.legend = ["", "󰃕", "󱣱", "",    "",    "󰎠", "󰃕", ""]
 
-[[gen.r0.keys]]
-primary.legend = "*8"
+[rows.thumbs]
+kind = "s1.5v"
+rotate = 90
 
-[[gen.r0.keys]]
-primary.legend = "(9"
-
-[[gen.r0.keys]]
-primary.legend = ")0"
-
-[[gen.r0.keys]]
-primary.legend = "]}"
+primaries.legend   = ["⎋", "󰌑"]
+secondaries.legend = ["󰘦", ""]
