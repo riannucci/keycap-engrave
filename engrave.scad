@@ -23,6 +23,12 @@ KeyTranslucent = false;
 // Skips rendering the keycap entirely.
 KeySkip = false;
 
+// (SLA/SLS) Legends will be made as engravings of this depth, instead of FDM-friendly extrusions.
+EngraveDepth = 0; // [0:0.01:1]
+
+// Colored legends will be kept when in engrave mode.
+KeepEngraved = false;
+
 /* [Primary Legend] */
 
 // Text
@@ -32,7 +38,7 @@ PrimaryColor = "white";
 // Font.
 PrimaryFont = "FiraCode Nerd Font:style=Medium";
 // Size.
-PrimarySize = 4;
+PrimarySize = 4; // [1:0.01:6]
 // Offset (X, Y) from center.
 PrimaryVecXY = [0, 3];
 // Skip rendering the legend.
@@ -49,7 +55,7 @@ SecondaryColor = "blue";
 // Font
 SecondaryFont = "FiraCode Nerd Font:style=Medium";
 // Size
-SecondarySize = 3;
+SecondarySize = 3; // [1:0.01:6]
 // Offset (X, Y) from center.
 SecondaryVecXY = [-3, -3];
 // Skip rendering the legend.
@@ -66,7 +72,7 @@ TertiaryColor = "green";
 // Font
 TertiaryFont = "FiraCode Nerd Font:style=Medium";
 // Size
-TertiarySize = 3;
+TertiarySize = 3; // [1:0.01:6]
 // Offset (X, Y) from center.
 TertiaryVecXY = [3, -3];
 // Skip rendering the legend.
@@ -174,8 +180,33 @@ module legend(leg, truncated = false) {
     text(text=text_val, size=size, halign="center", valign="center", font=font);
   }
 
+  // Generates a letter with given thickness, with the same curvature as the cap 
+  // surface, *just* below the cap surface.
+  //
+  // Pancake must be flopped to get it back into it's ultimate location.
+  module pancake(thickness) {
+    intersection() {
+      // Move it down a smidge to embed it in the cap.
+      translate([0, 0, thickness])
+        // calculate a letter tower starting at the model face and
+        // going up. 
+        difference() {
+          intersection() {
+            shifted() embiggen() legText();
+            safezone();
+          }
+          flipped() model();
+        }
+
+      // Now only keep the smidgen, resulting in a wafer thin 
+      // pancake letter exactly on the surface of the cap.
+      flipped() model();
+    }
+  }
+
   if (!skip && text_val != "") {
-    color(colorr) intersection() {
+    color(colorr) if (EngraveDepth == 0) {
+      intersection() {
         // Extrude it back along the Z axis. Now we have a correctly
         // tilt-corrected letter, extruded exactly along Z.
         embiggen()
@@ -183,23 +214,7 @@ module legend(leg, truncated = false) {
           projection(cut=false)
             // Flop the pancake into it's ultimate position.
             flopped()
-              intersection() {
-                // Move it down a smidge to embed it in the cap.
-                translate([0, 0, -0.001])
-                  // calculate a letter tower starting at the model face and
-                  // going up. 
-                  difference() {
-                    intersection() {
-                      shifted() embiggen() legText();
-                      safezone();
-                    }
-                    flipped() model();
-                  }
-
-                // Now only keep the smidgen, resulting in a wafer thin 
-                // pancake letter exactly on the surface of the cap.
-                flipped() model();
-              }
+              pancake(-0.001);
 
         // Make sure this doesn't intersect the stem/bottom of the cap.
         safezone();
@@ -208,15 +223,22 @@ module legend(leg, truncated = false) {
         // poke above the model.
         if (truncated) model();
       }
+    } else {
+      intersection() {
+        // Flop it into it's ultimate position.
+        flopped()
+          // Now poke it up above the cap surface for clean intersections.
+          translate([0, 0, 1])
+            // Make a pancake which is too deep.
+            pancake(-(EngraveDepth + 1));
+
+        // If we're truncating, make sure the resulting legend doesn't
+        // poke above the model.
+        if (truncated) model();
+      }
+    }
   }
 }
-
-// NOTE: It's important that this NOT be turned into a module, or even grouped
-// with a single render(). Otherwise even with `lazy-union`, OpenSCAD will
-// implicitly union the output of the module, and there will only be one
-// exported body.
-
-// 1. Base keycap with legends carved out.
 
 module maybeRender(translucent = false) {
   if (translucent) {
@@ -226,6 +248,12 @@ module maybeRender(translucent = false) {
   }
 }
 
+// NOTE: It's important that this NOT be turned into a module, or even grouped
+// with a single render(). Otherwise even with `lazy-union`, OpenSCAD will
+// implicitly union the output of the module, and there will only be one
+// exported body.
+
+// Base keycap with legends carved out.
 if (!KeySkip) {
   maybeRender(translucent=KeyTranslucent) color(KeyColor) difference() {
         model();
@@ -237,6 +265,12 @@ if (!KeySkip) {
 }
 
 // Each legend generated and colored separately.
-maybeRender(PrimaryTranslucent) legend(legends[0], truncated=true);
-maybeRender(SecondaryTranslucent) legend(legends[1], truncated=true);
-maybeRender(TertiaryTranslucent) legend(legends[2], truncated=true);
+if (EngraveDepth == 0 || KeepEngraved) {
+  maybeRender(PrimaryTranslucent) legend(legends[0], truncated=true);
+}
+if (EngraveDepth == 0 || KeepEngraved) {
+  maybeRender(SecondaryTranslucent) legend(legends[1], truncated=true);
+}
+if (EngraveDepth == 0 || KeepEngraved) {
+  maybeRender(TertiaryTranslucent) legend(legends[2], truncated=true);
+}
