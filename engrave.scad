@@ -1,71 +1,71 @@
 /* [Keycap] */
 
 // A folder name in `caps/`
-keycapFamily = "klp_lame";
+KeyFamily = "klp_lame";
 
-// The basename of a JSON in `caps/<keycapFamily>/`
-keycapVariant = "choc_choc";
+// The basename of a JSON in `caps/<KeyFamily>/`
+KeyVariant = "choc_choc";
 
 // The name of an entry in the JSON file.
-keycapKind = "n";
-
-// Rotate legend.
-legendRotate = 0; // [0:359]
+KeyKind = "n";
 
 // Color of the keycap.
-keycapColor = "#1a1a1a";
+KeyColor = "#1a1a1a";
+
+/* [Global Options] */
+
+// Rotate legend.
+RotateLegend = 0; // [0:359]
+
+// Makes keycap body translucent in preview. Useful for finding the "floor" when adding new keycap JSONs.
+TranslucentBody = false;
 
 /* [Primary Legend] */
 
 // Text
-legPri = "";
+PrimaryLegend = "";
 // Color
-legPriColor = "white";
+PrimaryColor = "white";
 // Font.
-legPriFont = "FiraCode Nerd Font:style=Medium";
+PrimaryFont = "FiraCode Nerd Font:style=Medium";
 // Size.
-legPriSize = 4;
+PrimarySize = 4;
 // Offset (X, Y) from center.
-legPriVecXY = [0, 3];
+PrimaryVecXY = [0, 3];
 
 /* [Secondary Legend] */
 
 // Text
-legSec = "";
+SecondaryLegend = "";
 // Color
-legSecColor = "blue";
+SecondaryColor = "blue";
 // Font
-legSecFont = "FiraCode Nerd Font:style=Medium";
+SecondaryFont = "FiraCode Nerd Font:style=Medium";
 // Size
-legSecSize = 3;
+SecondarySize = 3;
 // Offset (X, Y) from center.
-legSecVecXY = [-3, -3];
+SecondaryVecXY = [-3, -3];
 
 /* [Tertiary Legend] */
 
 // Text
-legTrt = "";
+TertiaryLegend = "";
 // Color
-legTrtColor = "green";
+TertiaryColor = "green";
 // Font
-legTrtFont = "FiraCode Nerd Font:style=Medium";
+TertiaryFont = "FiraCode Nerd Font:style=Medium";
 // Size
-legTrtSize = 3;
+TertiarySize = 3;
 // Offset (X, Y) from center.
-legTrtVecXY = [3, -3];
+TertiaryVecXY = [3, -3];
 
-/* [Debug] */
-
-// Makes keycap body translucent in preview. Useful for finding the "floor" when adding new keycap JSONs.
-debugClearBody = false;
-
-caps = import(str("caps/", keycapFamily, "/", keycapVariant, ".json"));
+caps = import(str("caps/", KeyFamily, "/", KeyVariant, ".json"));
 
 // The $default section of the cap variant JSON.
 default = caps["$default"];
 
 // The specific keycap section in the cap variant JSON.
-cap = caps[keycapKind];
+cap = caps[KeyKind];
 
 if (is_undef(cap)) {
   echo("Found caps:");
@@ -74,14 +74,14 @@ if (is_undef(cap)) {
       echo(entry);
     }
   }
-  assert(!is_undef(cap), str("Unknown keycap: caps/", keycapFamily, "/", keycapVariant, ".json: ", keycapKind));
+  assert(!is_undef(cap), str("Unknown keycap: caps/", KeyFamily, "/", KeyVariant, ".json: ", KeyKind));
 }
 
 $fa = 0.01;
 $fs = 0.01;
 
 // get retrieves from a keycap json:
-//   * The value directly in the keycap entry (keycapKind).
+//   * The value directly in the keycap entry (KeyKind).
 //   * The value in the keycap JSON $default
 function get(key, fallback) =
   (
@@ -99,7 +99,7 @@ function get(key, fallback) =
 module model() {
   path = is_undef(default.rootPath) ? cap.stl : str(default.rootPath, cap.stl);
   rotate([0, 0, get("rotate", 0)])
-    import(str("caps/", keycapFamily, "/upstream/", path), center=true);
+    import(str("caps/", KeyFamily, "/upstream/", path), center=true);
 }
 
 // Safezone is a giant cube lifted to the floor of the keycap.
@@ -109,15 +109,15 @@ module safezone() {
 }
 
 // Flipped orients its children by tilting them by the keycap's tilt, then
-// rotating them around Z by the inverse of `legendRotate`.
+// rotating them around Z by the inverse of `RotateLegend`.
 //
 // When visualizing this, it will rotate the keycap so it's face is directly
 // up along Z, and then rotating it so that letters stamped into it will 
-// appear with `legendRotate`.
+// appear with `RotateLegend`.
 //
 // The effects of flipped are exactly reversed by `flopped`.
 module flipped() {
-  rotate([0, 0, legendRotate])
+  rotate([0, 0, RotateLegend])
     rotate([-get("tilt", 0), 0, 0])
       children();
 }
@@ -125,14 +125,14 @@ module flipped() {
 // Flopped is the exact inverse of flipped.
 module flopped() {
   rotate([get("tilt", 0), 0, 0])
-    rotate([0, 0, -legendRotate])
+    rotate([0, 0, -RotateLegend])
       children();
 }
 
 legends = [
-  [legPri, legPriColor, legPriFont, legPriSize, legPriVecXY],
-  [legSec, legSecColor, legSecFont, legSecSize, legSecVecXY],
-  [legTrt, legTrtColor, legTrtFont, legTrtSize, legTrtVecXY],
+  [PrimaryLegend, PrimaryColor, PrimaryFont, PrimarySize, PrimaryVecXY],
+  [SecondaryLegend, SecondaryColor, SecondaryFont, SecondarySize, SecondaryVecXY],
+  [TertiaryLegend, TertiaryColor, TertiaryFont, TertiarySize, TertiaryVecXY],
 ];
 
 module legend(leg, truncated = false) {
@@ -203,14 +203,14 @@ module legend(leg, truncated = false) {
 // 1. Base keycap with legends carved out.
 
 module renderBody() {
-  if (debugClearBody) {
+  if (TranslucentBody) {
     %render() children();
   } else {
     render() children();
   }
 }
 
-renderBody() color(keycapColor) difference() {
+renderBody() color(KeyColor) difference() {
       model();
 
       legend(legends[0]);
