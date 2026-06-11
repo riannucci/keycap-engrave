@@ -160,38 +160,37 @@ module legend(leg, truncated = false) {
 
   if (text_val != "") {
     color(colorr) intersection() {
-        if (truncated) model();
-
-        safezone();
-
-        // Extrude it back along the Z axis.
+        // Extrude it back along the Z axis. Now we have a correctly
+        // tilt-corrected letter, extruded exactly along Z.
         embiggen()
-          // project it onto XY.
+          // Project it onto XY.
           projection(cut=false)
-            // flop it back into position.
+            // Flop the pancake into it's ultimate position.
             flopped()
-              // Put the pancake back exactly where it was.
-              translate([0, 0, -0.001])
-                difference() {
-                  // calculate a little "pancake" of the letter projected onto the 
-                  // flipped keycap.
-                  translate([0, 0, 0.001])
+              intersection() {
+                // Move it down a smidge to embed it in the cap.
+                translate([0, 0, -0.001])
+                  // calculate a letter tower starting at the model face and
+                  // going up. 
+                  difference() {
                     intersection() {
-                      flipped() model();
                       shifted() embiggen() legText();
                       safezone();
                     }
-
-                  intersection() {
                     flipped() model();
-                    shifted() embiggen() legText();
-                    safezone();
                   }
 
-                  // remove the model again to delete cruft from the
-                  // translated text extrusion.
-                  flipped() model();
-                }
+                // Now only keep the smidgen, resulting in a wafer thin 
+                // pancake letter exactly on the surface of the cap.
+                flipped() model();
+              }
+
+        // Make sure this doesn't intersect the stem/bottom of the cap.
+        safezone();
+
+        // If we're truncating, make sure the resulting legend doesn't
+        // poke above the model.
+        if (truncated) model();
       }
   }
 }
