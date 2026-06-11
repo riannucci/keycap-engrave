@@ -46,6 +46,10 @@ legTrtSize = 3;
 // Tertiary Legend offset (X, Y) from center.
 legTrtVecXY = [3, -3];
 
+// If true, will render the keycap body with transparency.
+// Useful for setting the "floor" when adding new keycap JSONs.
+debugClearBody = false;
+
 caps = import(str("caps/", keycapFamily, "/", keycapVariant, ".json"));
 
 // The $default section of the cap variant JSON.
@@ -186,10 +190,19 @@ module legend(leg, truncated = false) {
 // NOTE: It's important that this NOT be turned into a module, or even grouped
 // with a single render(). Otherwise even with `lazy-union`, OpenSCAD will
 // implicitly union the output of the module, and there will only be one
-// exported body. 
+// exported body.
 
 // 1. Base keycap with legends carved out.
-%render() color(keycapColor) difference() {
+
+module renderBody() {
+  if (debugClearBody) {
+    %render() children();
+  } else {
+    render() children();
+  }
+}
+
+renderBody() color(keycapColor) difference() {
       model();
 
       legend(legends[0]);
