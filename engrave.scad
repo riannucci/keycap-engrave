@@ -32,6 +32,8 @@ PrimaryFont = "FiraCode Nerd Font:style=Medium";
 PrimarySize = 4;
 // Offset (X, Y) from center.
 PrimaryVecXY = [0, 3];
+// Skip rendering the legend.
+PrimarySkip = false;
 
 /* [Secondary Legend] */
 
@@ -45,6 +47,8 @@ SecondaryFont = "FiraCode Nerd Font:style=Medium";
 SecondarySize = 3;
 // Offset (X, Y) from center.
 SecondaryVecXY = [-3, -3];
+// Skip rendering the legend.
+SecondarySkip = false;
 
 /* [Tertiary Legend] */
 
@@ -58,6 +62,8 @@ TertiaryFont = "FiraCode Nerd Font:style=Medium";
 TertiarySize = 3;
 // Offset (X, Y) from center.
 TertiaryVecXY = [3, -3];
+// Skip rendering the legend.
+TertiarySkip = false;
 
 caps = import(str("caps/", KeyFamily, "/", KeyVariant, ".json"));
 
@@ -130,9 +136,9 @@ module flopped() {
 }
 
 legends = [
-  [PrimaryLegend, PrimaryColor, PrimaryFont, PrimarySize, PrimaryVecXY],
-  [SecondaryLegend, SecondaryColor, SecondaryFont, SecondarySize, SecondaryVecXY],
-  [TertiaryLegend, TertiaryColor, TertiaryFont, TertiarySize, TertiaryVecXY],
+  [PrimaryLegend, PrimaryColor, PrimaryFont, PrimarySize, PrimaryVecXY, PrimarySkip],
+  [SecondaryLegend, SecondaryColor, SecondaryFont, SecondarySize, SecondaryVecXY, SecondarySkip],
+  [TertiaryLegend, TertiaryColor, TertiaryFont, TertiarySize, TertiaryVecXY, TertiarySkip],
 ];
 
 module legend(leg, truncated = false) {
@@ -141,6 +147,7 @@ module legend(leg, truncated = false) {
   font = leg[2];
   size = leg[3];
   shift = leg[4];
+  skip = leg[5];
 
   module shifted() {
     translate([shift[0], shift[1], 0]) children();
@@ -158,7 +165,7 @@ module legend(leg, truncated = false) {
     text(text=text_val, size=size, halign="center", valign="center", font=font);
   }
 
-  if (text_val != "") {
+  if (!skip && text_val != "") {
     color(colorr) intersection() {
         // Extrude it back along the Z axis. Now we have a correctly
         // tilt-corrected letter, extruded exactly along Z.
