@@ -95,41 +95,6 @@ module safezone() {
     cube([100, 100, 100], center=true);
 }
 
-module legend(leg) {
-  text_val = leg[0];
-  colorr = leg[1];
-  font = leg[2];
-  size = leg[3];
-  shift = leg[4];
-
-  module legText() {
-    translate(concat(shift, -10))
-      linear_extrude(height=200)
-        text(text=text_val, size=size, halign="center", valign="center", font=font);
-  }
-
-  if (text_val != "") {
-    color(colorr) intersection() {
-        model();
-        safezone();
-
-        flopped()
-          linear_extrude(height=100)
-            projection(cut=false)
-              difference() {
-                intersection() {
-                  flipped() model();
-                  legText();
-                }
-                translate([0, 0, -.00001]) intersection() {
-                    flipped() model();
-                    legText();
-                  }
-              }
-      }
-  }
-}
-
 // Flipped orients its children by tilting them by the keycap's tilt, then
 // rotating them around Z by the inverse of `legendRotate`.
 //
@@ -157,15 +122,75 @@ legends = [
   [legTrt, legTrtColor, legTrtFont, legTrtSize, legTrtVecXY],
 ];
 
+module legend(leg, truncated = false) {
+  text_val = leg[0];
+  colorr = leg[1];
+  font = leg[2];
+  size = leg[3];
+  shift = leg[4];
+
+  module shifted() {
+    translate([shift[0], shift[1], 0]) children();
+  }
+  module unshifted() {
+    translate([-shift[0], -shift[1], 0]) children();
+  }
+  module embiggen() {
+    translate([0, 0, -10])
+      linear_extrude(height=20)
+        children();
+  }
+
+  module legText() {
+    text(text=text_val, size=size, halign="center", valign="center", font=font);
+  }
+
+  if (text_val != "") {
+    color(colorr) intersection() {
+        if (truncated) model();
+
+        safezone();
+
+        // Extrude it back along the Z axis.
+        embiggen()
+          // project it onto XY.
+          projection(cut=false)
+            // flop it back into position.
+            flopped()
+              // Put the pancake back exactly where it was.
+              translate([0, 0, -0.001])
+                difference() {
+                  // calculate a little "pancake" of the letter projected onto the 
+                  // flipped keycap.
+                  translate([0, 0, 0.001])
+                    intersection() {
+                      flipped() model();
+                      shifted() embiggen() legText();
+                      safezone();
+                    }
+
+                  intersection() {
+                    flipped() model();
+                    shifted() embiggen() legText();
+                    safezone();
+                  }
+
+                  // remove the model again to delete cruft from the
+                  // translated text extrusion.
+                  flipped() model();
+                }
+      }
+  }
+}
+
 // NOTE: It's important that this NOT be turned into a module, or even grouped
 // with a single render(). Otherwise even with `lazy-union`, OpenSCAD will
 // implicitly union the output of the module, and there will only be one
 // exported body. 
 
 // 1. Base keycap with legends carved out.
-render()
-  color(keycapColor) difference() {
-      translate([0, 0, -0.0001]) model();
+%render() color(keycapColor) difference() {
+      model();
 
       legend(legends[0]);
       legend(legends[1]);
@@ -173,6 +198,6 @@ render()
     }
 
 // Each legend generated and colored separately.
-render() legend(legends[0]);
-render() legend(legends[1]);
-render() legend(legends[2]);
+render() legend(legends[0], truncated=true);
+render() legend(legends[1], truncated=true);
+render() legend(legends[2], truncated=true);
