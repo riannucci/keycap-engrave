@@ -1,6 +1,6 @@
 # TODO
 
-* Give script selective preview functionality.
-* Square off tilted extrusions on the assumption that the keys are printed
-    with the stems parallel to the build plate.
 * Add feature to omit colored inserts.
+* Add feature to do 'engrave' mode (for SLS/SLA) were the engraving is just a thicker pancake without projecting and reorienting the extrusion. Implies insert omission.
+* Make variable names nicer in script.
+* Finish TOML->Preview->render pipeline scripts
