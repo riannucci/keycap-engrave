@@ -1,3 +1,5 @@
+/* [Keycap] */
+
 // A folder name in `caps/`
 keycapFamily = "klp_lame";
 
@@ -8,46 +10,53 @@ keycapVariant = "choc_choc";
 keycapKind = "n";
 
 // Rotate legend.
-legendRotate = 0;
+legendRotate = 0; // [0:359]
 
 // Color of the keycap.
 keycapColor = "#1a1a1a";
 
-// Primary Legend.
+/* [Primary Legend] */
+
+// Text
 legPri = "";
-// Primary Legend color.
+// Color
 legPriColor = "white";
-// Primary Legend font.
+// Font.
 legPriFont = "FiraCode Nerd Font:style=Medium";
-// Primary Legend size.
+// Size.
 legPriSize = 4;
-// Primary Legend offset (X, Y) from center.
+// Offset (X, Y) from center.
 legPriVecXY = [0, 3];
 
-// Secondary Legend.
+/* [Secondary Legend] */
+
+// Text
 legSec = "";
-// Secondary Legend color.
+// Color
 legSecColor = "blue";
-// Secondary Legend font.
+// Font
 legSecFont = "FiraCode Nerd Font:style=Medium";
-// Secondary Legend size.
+// Size
 legSecSize = 3;
-// Secondary Legend offset (X, Y) from center.
+// Offset (X, Y) from center.
 legSecVecXY = [-3, -3];
 
-// Tertiary Legend.
+/* [Tertiary Legend] */
+
+// Text
 legTrt = "";
-// Tertiary Legend color.
+// Color
 legTrtColor = "green";
-// Tertiary Legend font.
+// Font
 legTrtFont = "FiraCode Nerd Font:style=Medium";
-// Tertiary Legend size.
+// Size
 legTrtSize = 3;
-// Tertiary Legend offset (X, Y) from center.
+// Offset (X, Y) from center.
 legTrtVecXY = [3, -3];
 
-// If true, will render the keycap body with transparency.
-// Useful for setting the "floor" when adding new keycap JSONs.
+/* [Debug] */
+
+// Makes keycap body translucent in preview. Useful for finding the "floor" when adding new keycap JSONs.
 debugClearBody = false;
 
 caps = import(str("caps/", keycapFamily, "/", keycapVariant, ".json"));
