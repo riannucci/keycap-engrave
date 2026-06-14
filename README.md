@@ -74,7 +74,7 @@ with the customizer panel prepopulated with some useful basic configuration.
 
 From here you should see something that looks like this (there may be a lot of
 extra little panels for e.g. font selection, colors, animation, etc.. You can
-safely close them all by clicking the small `x` in their top left corners):
+safely close them all by clicking the small `x` in their top right corners):
 
 ![Screenshot of engrave.scad](./docs/photos/BaseScreenshot.png)
 
