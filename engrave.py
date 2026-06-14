@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
 import argparse
+import asyncio
 import collections
 import copy
 import dataclasses
 import itertools
 import json
+import multiprocessing
+import os
 import tomllib
 import typing
 
@@ -138,29 +141,29 @@ def depluralize(data: PluralDict) -> dict[int, dict[str, typing.Any]]:
     """Consumes either:
 
     {
-        "key":       [some, values],
-        "other_key": [other, more],
+        'key':       [some, values],
+        'other_key': [other, more],
     }
 
     OR
 
     {
-        "key":       {"0": some, "1": values},
-        "other_key": {"0": other, "1": more},
+        'key':       {'0': some, '1': values},
+        'other_key': {'0': other, '1': more},
     }
 
     Or any combination within the same dict like:
 
     {
-        "key":       {"0": some, "1": values},
-        "other_key": [other, more],
+        'key':       {'0': some, '1': values},
+        'other_key': [other, more],
     }
 
     And yields:
 
     {
-        0: {"key": some, "other_key": other},
-        1: {"key": values, "other_key": more},
+        0: {'key': some, 'other_key': other},
+        1: {'key': values, 'other_key': more},
     }
     """
     if not data:
@@ -269,9 +272,15 @@ class Global:
         return batches
 
 
-def main() -> None:
+async def main() -> None:
     parser = argparse.ArgumentParser(
         description="Convert Keycap TOML to OpenSCAD Parameter Set JSON"
+    )
+    parser.add_argument(
+        "--render",
+        "-r",
+        action="store_true",
+        help="If set, render all caps to output/",
     )
     parser.add_argument("input_toml", help="Path to the input TOML file")
     args: argparse.Namespace = parser.parse_args()
@@ -287,6 +296,31 @@ def main() -> None:
     with open("engrave.json", "w") as f:
         json.dump({"parameterSets": presets, "fileFormatVersion": "1"}, f)
 
+    if args.render:
+        sem = asyncio.Semaphore(multiprocessing.cpu_count())
+
+        async def render(name: str):
+            async with sem:
+                os.makedirs(os.path.dirname(name), exist_ok=True)
+                await (
+                    await asyncio.subprocess.create_subprocess_exec(
+                        "openscad",
+                        "-p",
+                        "engrave.json",
+                        "-P",
+                        name,
+                        "-o",
+                        f"{name}.3mf",
+                        "--enable",
+                        "all",
+                        "engrave.scad",
+                    )
+                ).wait()
+
+        async with asyncio.TaskGroup() as grp:
+            for name in presets:
+                grp.create_task(render(name))
+
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

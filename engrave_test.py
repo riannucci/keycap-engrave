@@ -26,15 +26,6 @@ class TestDepluralize(unittest.TestCase):
             },
         )
 
-    def test_listy_mismatch(self):
-        with self.assertRaisesRegex(ValueError, "different lengths"):
-            depluralize(
-                {
-                    "font": [1, 2, 4],
-                    "color": [5, 6, 7, 8],
-                }
-            )
-
     def test_dicty(self):
         self.assertEqual(
             depluralize(
@@ -48,6 +39,21 @@ class TestDepluralize(unittest.TestCase):
                 1: {"color": "derpy"},
                 2: {"color": "nerpy"},
                 3: {"font": "gaba!", "color": "puce"},
+            },
+        )
+
+    def test_mixy(self):
+        self.assertEqual(
+            depluralize(
+                {
+                    "font": ["a", "b", "c"],
+                    "color": {"1": "yes"},
+                }
+            ),
+            {
+                0: {"font": "a"},
+                1: {"font": "b", "color": "yes"},
+                2: {"font": "c"},
             },
         )
 
