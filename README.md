@@ -341,7 +341,8 @@ Each of these keycap definitions is an object with the following keys:
 - `floor` - Offset plane from Z of the non-rotated keycap for what is considered
   safe to engrave. `engrave.scad` will not extrude geometry below this plane.
 
-See [./caps/klp_lame/choc_choc.json] for an example.
+See the [KLP Lame Choc+Choc](./caps/klp_lame/choc_choc.json) definition for an
+example.
 
 #### Options
 
