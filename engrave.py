@@ -9,6 +9,7 @@ import itertools
 import json
 import multiprocessing
 import os
+import subprocess
 import tomllib
 import typing
 
@@ -272,9 +273,15 @@ class Global:
         return batches
 
 
-async def main() -> None:
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Convert Keycap TOML to OpenSCAD Parameter Set JSON"
+    )
+    parser.add_argument(
+        "--preview",
+        "-p",
+        action="store_true",
+        help="If set, run `openscad` to preview changes.",
     )
     parser.add_argument(
         "--render",
@@ -296,31 +303,52 @@ async def main() -> None:
     with open("engrave.json", "w") as f:
         json.dump({"parameterSets": presets, "fileFormatVersion": "1"}, f)
 
+    if args.preview:
+
+        async def do_preview():
+            await (
+                await asyncio.subprocess.create_subprocess_exec(
+                    "openscad",
+                    "--enable",
+                    "all",
+                    "engrave.scad",
+                )
+            ).wait()
+
+        asyncio.run(do_preview())
+        if args.render:
+            if input("looks good? (y/N): ").lower() != "y":
+                return
+
     if args.render:
-        sem = asyncio.Semaphore(multiprocessing.cpu_count())
 
-        async def render(name: str):
-            async with sem:
-                os.makedirs(os.path.dirname(name), exist_ok=True)
-                await (
-                    await asyncio.subprocess.create_subprocess_exec(
-                        "openscad",
-                        "-p",
-                        "engrave.json",
-                        "-P",
-                        name,
-                        "-o",
-                        f"{name}.3mf",
-                        "--enable",
-                        "all",
-                        "engrave.scad",
-                    )
-                ).wait()
+        async def render_all():
+            sem = asyncio.Semaphore(multiprocessing.cpu_count())
 
-        async with asyncio.TaskGroup() as grp:
-            for name in presets:
-                grp.create_task(render(name))
+            async def render(name: str):
+                async with sem:
+                    os.makedirs(os.path.dirname(name), exist_ok=True)
+                    await (
+                        await asyncio.subprocess.create_subprocess_exec(
+                            "openscad",
+                            "-p",
+                            "engrave.json",
+                            "-P",
+                            name,
+                            "-o",
+                            f"output/{name}.3mf",
+                            "--enable",
+                            "all",
+                            "engrave.scad",
+                        )
+                    ).wait()
+
+            async with asyncio.TaskGroup() as grp:
+                for name in presets:
+                    grp.create_task(render(name))
+
+        asyncio.run(render_all())
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
