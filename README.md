@@ -272,16 +272,16 @@ something like this with the array syntax:
 
 ```toml
 # The default keycap color for all keys in this row.
-color: "purple"
+color = "purple"
 # Describes the colors of keys 0, 1, and 3 in this row. Key 2 gets the default (purple).
-colors: ["white", "black", "", "black"]
+colors = ["white", "black", "", "black"]
 ```
 
 Or with the sparse array syntax:
 
 ```toml
 # The default keycap color for all keys in this row.
-color: "purple"
+color = "purple"
 # Describes the colors of keys 0, 1, and 3 in this row. Key 2 gets the default (purple).
 colors.0 = "white"
 colors.1 = "black"
