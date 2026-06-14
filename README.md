@@ -21,6 +21,12 @@ way (and now I have a basic understanding of OpenSCAD, which is neat!). Plus,
 this one doesn't require anything other than the base OpenSCAD and python3,
 which is nice.
 
+## Results
+
+Here's my lily58 with [KLP Lamé] keycaps made with these scripts:
+
+> TODO: Actually take a photo when the keyboard is done lol ^\_^.
+
 ## Quickstart
 
 ### Prerequisites
@@ -256,13 +262,14 @@ possible legends which can be carved into the keycap.
 - `{XXX}VecXY` <a name="opt-leg-vecxy"></a>- An `[X, Y]` vector on the plane
   perpendicular to the keycap's face in which to slide this legend's text from
   center. `[0, 0]` would be dead center.
-- `{}Skip` <a name="opt-leg-skip"></a>- Boolean indicating that this legend
+- `{XXX}Skip` <a name="opt-leg-skip"></a>- Boolean indicating that this legend
   should be skipped when rendering the output key. This legend will still be
   engraved into the model (assuming the `{XXX}Legend` is not empty), but the
   geometry for the actual legend will be omitted.
-- `{}Translucent` <a name="opt-leg-translucent"></a>- Boolean indicating that
+- `{XXX}Translucent` <a name="opt-leg-translucent"></a>- Boolean indicating that
   this legend will be rendered as translucent in the OpenSCAD preview.
 
 [coredump/keycap-legends]: https://github.com/coredump/keycap-legends
+[klp lamé]: https://github.com/braindefender/KLP-Lame-Keycaps
 [openscad]: https://openscad.org/
 [openscad font]: https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Text#Using_Fonts_&_Styles
