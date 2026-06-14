@@ -108,9 +108,9 @@ Customizing your keyboard comes down to customizing your own TOML file. See the
 
 #### Caplist TOML
 
-The `caplist.toml` file has my particular keyboard layout, but should be a good
-jumping off point for anyone else intending to make a customized keyboard
-layout.
+The [`caplist.toml`](./caplist.toml) file has my particular keyboard layout, but
+should be a good jumping off point for anyone else intending to make a
+customized keyboard layout.
 
 It's syntax is [TOML](toml.io), and the expected fields are roughly:
 
