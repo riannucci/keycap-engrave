@@ -36,7 +36,8 @@ tertiaries.legend  = ["", "",  "",  "",  "",  "󱐥", "",  "",  "",  "",  "",
 kind = "n"
 
 # Override T and N as 'normal homing' key kinds.
-kinds             = ["",   "",  "",  "",  "nh", "",  "",  "nh", "",  "",  "",  ""]
+kinds.4 = "nh"
+kinds.7 = "nh"
 primaries.legend   = ["`~", "A", "R", "S", "T",  "G", "M", "N",  "E", "I", "O", "'\""]
 secondaries.legend = ["󰝞",  "", "󰒮", "󰐎", "󰒭",  "",  "",  "󰁍",  "󰁅", "󰁝", "󰁔", ""]
 tertiaries.legend  = ["󰜉",  "󰘴", "󰘵", "󰘳", "󰘶",  "", "",  "󰘶",  "󰘳", "󰘵", "󰘴", "󰜉"]
@@ -54,6 +55,8 @@ tertiaries.color   = ["$mod", "",  "",  "",  "",  "",  "",   "",   "",   "",   "
 [rows.r4]
 kind = "st"
 
+primaries.color.3 = "$mod"
+primaries.color.4 = "$mod"
 primaries.legend   = ["",  "",  "󰭜", "HYP", "HYP", "󱁐", "",  ""]
 secondaries.legend = ["", "󰃕", "󱣱", "",    "",    "󰎠", "󰃕", ""]
 

@@ -64,15 +64,15 @@ class Keycap:
 
     primary: Legend = dataclasses.field(
         default_factory=lambda: Legend("Primary"),
-        metadata={"p": "primaries"},
+        metadata={"p": "primaries", "l": True},
     )
     secondary: Legend = dataclasses.field(
         default_factory=lambda: Legend("Secondary"),
-        metadata={"p": "secondaries"},
+        metadata={"p": "secondaries", "l": True},
     )
     tertiary: Legend = dataclasses.field(
         default_factory=lambda: Legend("Tertiary"),
-        metadata={"p": "tertiaries"},
+        metadata={"p": "tertiaries", "l": True},
     )
 
     rotate: float = dataclasses.field(default=0, metadata={"p": "rotates"})
@@ -131,17 +131,57 @@ class Keycap:
         return tuple(key)
 
 
-def depluralize(
-    data: dict[str, list[typing.Any]],
-) -> typing.Iterable[dict[str, typing.Any]]:
-    return (dict(zip(data.keys(), values)) for values in zip(*data.values()))
+PluralDict = dict[str, list[typing.Any] | dict[str, typing.Any]]
+
+
+def depluralize(data: PluralDict) -> dict[int, dict[str, typing.Any]]:
+    """Consumes either:
+
+    {
+        "key":       [some, values],
+        "other_key": [other, more],
+    }
+
+    OR
+
+    {
+        "key":       {"0": some, "1": values},
+        "other_key": {"0": other, "1": more},
+    }
+
+    Or any combination within the same dict like:
+
+    {
+        "key":       {"0": some, "1": values},
+        "other_key": [other, more],
+    }
+
+    And yields:
+
+    {
+        0: {"key": some, "other_key": other},
+        1: {"key": values, "other_key": more},
+    }
+    """
+    if not data:
+        return {}
+    ret = collections.defaultdict(dict)
+    for key, item in data.items():
+        if isinstance(item, list):
+            for i, value in enumerate(item):
+                ret[i][key] = value
+        else:
+            assert isinstance(item, dict)
+            for idx, value in item.items():
+                ret[int(idx)][key] = value
+    return ret
 
 
 @dataclasses.dataclass
 class Row:
     name: str
 
-    keys: list[Keycap]
+    keys: dict[int, Keycap]
 
     @staticmethod
     def from_data(name: str, default: Keycap, data: dict) -> Row:
@@ -149,18 +189,15 @@ class Row:
         # The plurals are dicts whose keys are Keycap fields, and whose values are
         # lists. All plural values MUST have the same length, or this will raise
         # an error. We will keep all keys which have a legend.
-        legend_plurals: dict[str, dict[str, list[typing.Any]]] = (
-            collections.defaultdict(dict)
-        )
-        plurals: dict[str, list[typing.Any]] = collections.defaultdict(list)
+        legend_plurals: dict[str, PluralDict] = collections.defaultdict(dict)
+        plurals: PluralDict = collections.defaultdict(list)
         singulars = {}
         for field in dataclasses.fields(Keycap):
             if (plural := field.metadata["p"]) in data:
-                vals: list[typing.Any] | dict[str, list[typing.Any]] = data.pop(plural)
-                if isinstance(vals, list):
-                    plurals[field.name] = vals
+                if "l" in field.metadata:
+                    legend_plurals[field.name] = data.pop(plural)
                 else:
-                    legend_plurals[field.name] = vals
+                    plurals[field.name] = data.pop(plural)
 
             if field.name in data:
                 singulars[field.name] = data.pop(field.name)
@@ -169,29 +206,13 @@ class Row:
 
         base = default.with_data(singulars)
 
-        # plurals is a dict of either Keycap.field -> Keycap.field value.
-        # for 'primary', 'secondary' and 'tertiary', this is Keycap.field -> dict[Legend.field, Legend.field valueS].
-        # All value arrays must have the same length.
-        # The goal is to get this to be a flat list of Keycaps.
-
-        keys = [base.with_data(item) for item in depluralize(plurals)]
-        key_fragments: dict[str, list[dict]] = collections.defaultdict(list)
-        legend_fragments = (
-            (key, partial_legend)
-            for key, legend_plural in legend_plurals.items()
-            for partial_legend in depluralize(legend_plural)
-        )
-        for key_key, fragment in legend_fragments:
-            key_fragments[key_key].append(fragment)
-
-        if keys:
-            for i, fragment in enumerate(depluralize(key_fragments)):
-                keys[i] = keys[i].with_data(fragment)
-        else:
-            keys = [base.with_data(item) for item in depluralize(key_fragments)]
-
-        if base.should_output:
-            keys.append(base)
+        keys: dict[int, Keycap] = collections.defaultdict(lambda: copy.deepcopy(base))
+        for idx, data in depluralize(plurals).items():
+            keys[idx] = keys[idx].with_data(data)
+        for legend, pdict in legend_plurals.items():
+            for idx, data in depluralize(pdict).items():
+                key = keys[idx]
+                setattr(key, legend, getattr(key, legend).with_data(data))
 
         return Row(name, keys)
 
@@ -231,7 +252,7 @@ class Global:
     def batched(self) -> list[dict[str, Keycap]]:
         ret = {}
         for rowName, row in self.rows.items():
-            for i, cap in enumerate(row.keys):
+            for i, cap in row.keys.items():
                 ret[f"{rowName}_{i}"] = cap
         if not self.batch.size:
             return [ret]
