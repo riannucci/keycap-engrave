@@ -32,7 +32,7 @@ KeepEngraved = false;
 /* [Primary Legend] */
 
 // Text
-PrimaryLegend = "";
+PrimaryLegend = "P";
 // Color
 PrimaryColor = "white";
 // Font.
@@ -49,7 +49,7 @@ PrimaryTranslucent = false;
 /* [Secondary Legend] */
 
 // Text
-SecondaryLegend = "";
+SecondaryLegend = "S";
 // Color
 SecondaryColor = "blue";
 // Font
@@ -66,7 +66,7 @@ SecondaryTranslucent = false;
 /* [Tertiary Legend] */
 
 // Text
-TertiaryLegend = "";
+TertiaryLegend = "T";
 // Color
 TertiaryColor = "green";
 // Font
