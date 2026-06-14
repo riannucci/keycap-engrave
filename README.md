@@ -45,24 +45,25 @@ with the customizer panel prepopulated with some useful basic configuration.
 >
 > If this is the first time you're opening OpenSCAD, you will need to do a bit
 > of extra setup.
-
-<details>
-<summary>Extra one-time UI setup.</summary>
-
-To make the OpenSCAD UI display keycaps properly, you must first enable
-`lazy-union` and `import-function` features. This is not necessary for directly
-using `engrave.py` because it enables these explicitly on the command line.
-
-![Enablement of  and  features in the UI](./docs/photos/EnableFeatures.png)
-
-Additionally, if you want to use a custom font and want the Customizer view of
-the font to be accurate, you should also adjust this in the UI as well. This is
-not necessary for getting an accurate preview in the atual model viewport, just
-on the customizer pane.
-
-![Adjustment of Customizer Font](./docs/photos/SetCustomizerFont.png)
-
-</details>
+>
+> <details>
+> <summary>Extra one-time UI setup.</summary>
+>
+> To make the OpenSCAD UI display keycaps properly, you must first enable
+> `lazy-union` and `import-function` features. This is not necessary for
+> directly using `engrave.py` because it enables these explicitly on the command
+> line.
+>
+> ![Enablement of  and  features in the UI](./docs/photos/EnableFeatures.png)
+>
+> Additionally, if you want to use a custom font and want the Customizer view of
+> the font to be accurate, you should also adjust this in the UI as well. This
+> is not necessary for getting an accurate preview in the atual model viewport,
+> just on the customizer pane.
+>
+> ![Adjustment of Customizer Font](./docs/photos/SetCustomizerFont.png)
+>
+> </details>
 
 From here you should see something that looks like this (there may be a lot of
 extra little panels for e.g. font selection, colors, animation, etc.. You can
