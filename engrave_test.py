@@ -14,15 +14,16 @@ class TestDepluralize(unittest.TestCase):
         self.assertEqual(
             depluralize(
                 {
-                    "font": [1, 2, 3, 4],
-                    "color": [5, 6, 7, 8],
+                    "font": [1, 2, "", 3, 4],
+                    "color": [5, 6, 7, 8, ""],
                 }
             ),
             {
                 0: {"font": 1, "color": 5},
                 1: {"font": 2, "color": 6},
-                2: {"font": 3, "color": 7},
-                3: {"font": 4, "color": 8},
+                2: {"color": 7},
+                3: {"font": 3, "color": 8},
+                4: {"font": 4},
             },
         )
 

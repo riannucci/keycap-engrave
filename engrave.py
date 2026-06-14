@@ -105,7 +105,12 @@ class Keycap:
             ret.update(self.secondary.to_dict(colormap))
         if self.tertiary.legend:
             ret.update(self.tertiary.to_dict(colormap))
-        return {k: v for k, v in ret.items() if v}
+        # Filter all empty stuff out.
+        ret = {k: v for k, v in ret.items() if v}
+        # Explicitly add back empty legends - otherwise the file default will bleed through.
+        for legend in ("Primary", "Secondary", "Tertiary"):
+            ret.setdefault(f"{legend}Legend", "")
+        return ret
 
     @staticmethod
     def from_data(data: dict) -> Keycap:
@@ -171,11 +176,13 @@ def depluralize(data: PluralDict) -> dict[int, dict[str, typing.Any]]:
     for key, item in data.items():
         if isinstance(item, list):
             for i, value in enumerate(item):
-                ret[i][key] = value
+                if value:
+                    ret[i][key] = value
         else:
             assert isinstance(item, dict)
             for idx, value in item.items():
-                ret[int(idx)][key] = value
+                if value:
+                    ret[int(idx)][key] = value
     return ret
 
 

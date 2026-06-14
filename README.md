@@ -96,15 +96,14 @@ for each key on your keyboard.
 Customizing your keyboard comes down to customizing your own TOML file. See the
 [caplist.toml syntax](#caplist-toml).
 
-## Notes on 3D printing keycaps
-
-### FDM
-
-### SLS/SLA
-
 ## Repo Layout
 
 ### engrave.py
+
+This is the main 'high level' script for generating a whole keyboard's worth of
+keys at a time. It consumes a Caplist TOML, spits out an OpenSCAD 'customizer'
+JSON (one preset per key), then optionally renders every key to `3mf`s ready to
+send to your favorite slicer/print shop.
 
 #### Caplist TOML
 
@@ -156,6 +155,51 @@ group together keys which will print similarly and will be able to take
 advantage of shared filament changes at around the same layers (for multi-color
 FDM). You probably want to set this to zero for SLA/SLS.
 
+##### Example
+
+You can see a live example in the repo's [caplist.toml](./caplist.toml), but for
+ease of README, here is a small annotated example which defines a 5-key keyboard
+with 2 rows of different length.
+
+```toml
+colors.light = "white"   # An OpenSCAD named color
+colors.dark = "#1A1A1A"  # A nice dark grey.
+colors.aux = "#F99963"   # An orangey color.
+colors.bonus = "#56B7E6" # An blueish color.
+
+[default]
+family = "klp_lame"
+variant = "choc_choc"
+color = "$dark"  # references our custom color table above
+primary.size = 4
+primary.color = "$light"
+primary.font = "FiraCode Nerd Font:style=Medium"
+secondary.size = 3
+secondary.color = "$aux"
+secondary.font = "FiraCode Nerd Font:style=Medium"
+# To keep things simple, we only use primary/secondary here.
+
+[rows.top]
+kind = "nt"  # this is 'normal tilted' in caps/klp_lame/choc_choc.json
+
+# Now define key 0 as "A_" and key 1 as "B+" using the plural array syntax.
+primaries.legend   = ["A", "B"]
+secondaries.legend = ["_", "+"]
+
+[rows.bottom]
+# Same type for the example, but we're going to rotate these.
+kind = "nt"  
+# These will have the legends 'upside down', meaning our tilt is away from us
+# on the row closer to us.
+rotate = 180 
+
+primaries.legend = ["X", "Y", "Z"]
+# We only want a secondary legend on the middle key, so use the sparse array
+# syntax. Let's color the "!" a different color, too.
+secondaries.legend.1 = "!"
+secondaries.color.1 = "$bonus"
+```
+
 ##### Keycap object
 
 Keycap objects in the TOML have the following fields:
@@ -189,9 +233,76 @@ Legend objects in the TOML have the following fields:
 
 ##### Plural Keycap object
 
+Plural Keycap objects are 'special'. A Keycap object defines a single keycap,
+but a Plural Keycap allows the definition of many keycaps. Instead of having an
+array of Keycap objects to define many keycaps, a Plural Keycap has an array
+per-Keycap-option.
+
+Rows are a union of all [Keycap fields](#keycap-object) plus the following:
+
+- `families` - Corresponds to `Keycap.family`.
+- `variants` - Corresponds to `Keycap.variant`.
+- `kinds` - Corresponds to `Keycap.kind`.
+- `colors` - Corresponds to `Keycap.color`.
+- `primaries` - Corresponds to `Keycap.primary`.
+- `skips` - Corresponds to `Keycap.skips`.
+- `engraveDepths` - Corresponds to `Keycap.engraveDepth`.
+- `keepEngraveds` - Corresponds to `Keycap.keepEngraved`.
+- `secondaries` (`recursive`) - Corresponds to `Keycap.secondary`.
+- `tertiaries` (`recursive`) - Corresponds to `Keycap.tertiary`.
+- `rotations` (`recursive`) - Corresponds to `Keycap.rotate`.
+
+(The fields marked (`recursive`) are special; I'll talk about those below the
+example)
+
+The values are either an array of values whose type matches, or a 'sparse array'
+of such values. An array is just what you think it is, a list of values (e.g.
+strings). Sparse arrays in this config file are an object whose keys are
+indexes, and whose values are the value to use at that index.
+
+So if you wanted to set the keycap color on a key-by-key basis, you could do
+something like this with the array syntax:
+
+```toml
+# The default keycap color for all keys in this row.
+color: "purple"
+# Describes the colors of keys 0, 1, and 3 in this row. Key 2 gets the default (purple).
+colors: ["white", "black", "", "black"]
+```
+
+Or with the sparse array syntax:
+
+```toml
+# The default keycap color for all keys in this row.
+color: "purple"
+# Describes the colors of keys 0, 1, and 3 in this row. Key 2 gets the default (purple).
+colors.0 = "white"
+colors.1 = "black"
+colors.3 = "black"
+```
+
+The `recursive` fields are special. In particular, their type is
+[Legend](#legend-object), which is an object, not a primitive type. It would be
+pretty crummy to have to have an array of objects when you just want to set the
+legend text for a bunch of keys, so the TOML loader applies this array parsing
+behavior to the keys of this pluralized object, instead.
+
+As an example, to set a bunch of legend text, without changing any other aspects
+of the legends (like font or color), you can do:
+
+```toml
+primaries.legend = ['A', 'B', 'C']
+# just add '!' as a secondary legend for 'B'
+secondaries.legend.1 = '!' 
+```
+
+This is probably a bit confusing, but it makes for very readable config files.
+Check out the live config example in [`caplist.toml`](./caplist.toml).
+
 ### engrave.scad
 
-`engrave.scad` is the core of the magic in this repo.
+`engrave.scad` is the core of the magic in this repo. It implements all the
+model/font manipulation logic to generate useful geometry for printing.
 
 #### Keycap Definitions
 
@@ -268,6 +379,12 @@ possible legends which can be carved into the keycap.
   geometry for the actual legend will be omitted.
 - `{XXX}Translucent` <a name="opt-leg-translucent"></a>- Boolean indicating that
   this legend will be rendered as translucent in the OpenSCAD preview.
+
+## Notes on 3D printing keycaps
+
+### FDM
+
+### SLS/SLA
 
 [coredump/keycap-legends]: https://github.com/coredump/keycap-legends
 [klp lamé]: https://github.com/braindefender/KLP-Lame-Keycaps
