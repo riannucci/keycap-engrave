@@ -10,7 +10,7 @@ you'd be fine with totally unlabeled keys, too, but I like the aesthetic of
 labeled keys, already know how to touch type, and it also helps when explaining
 for my QWERTY-oriented friends).
 
-I wrote this as a spinoff of [https://github.com/coredump/keycap-legends], which
+I wrote this as a spinoff of https://github.com/coredump/keycap-legends, which
 was a great intro to the topic, but a tad too slow (generating a single key took
 something like 10s on my machine, `engrave.scad` takes about 0.2s), buggy
 (certain legend settings caused the script to crash) and rigid (extending it to
@@ -41,8 +41,10 @@ OpenSCAD to work properly:
 Once you have OpenSCAD, you can just do `openscad engrave.py` and it should open
 with the customizer panel prepopulated with some useful basic configuration.
 
-> [!NOTE] If this is the first time you're opening OpenSCAD, you will need to do
-> a bit of extra setup.
+> [!NOTE]
+>
+> If this is the first time you're opening OpenSCAD, you will need to do a bit
+> of extra setup.
 
 <details>
 <summary>Extra one-time UI setup.</summary>
