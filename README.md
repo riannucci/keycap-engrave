@@ -322,8 +322,8 @@ family+variant combination.
 Each keycap family has an `upstream` subdirectory (a Git submodule) which has
 the actual model files.
 
-See [#Options] for current key families with links to their OG sources which
-have renderings of the base keycaps.
+See [Options](#options) for current key families with links to their OG sources
+which have renderings of the base keycaps.
 
 ##### Keycap JSON
 
