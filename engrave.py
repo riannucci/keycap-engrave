@@ -9,7 +9,6 @@ import itertools
 import json
 import multiprocessing
 import os
-import subprocess
 import tomllib
 import typing
 
@@ -39,11 +38,11 @@ class Legend:
     skip: bool = False
     translucent: bool = False
 
-    def to_dict(self, key: Keycap, colormap: typing.Callable[[str], str]):
+    def to_dict(self, colormap: typing.Callable[[str], str]):
         return {
             f"{self.variant}Legend": self.legend,
-            f"{self.variant}Color": colormap(self.color or key.color),
-            f"{self.variant}Font": self.font or key.font,
+            f"{self.variant}Color": colormap(self.color),
+            f"{self.variant}Font": self.font,
             f"{self.variant}Size": self.size,
             f"{self.variant}VecXY": self.shiftXY,
             f"{self.variant}Skip": self.skip,
@@ -64,7 +63,6 @@ class Keycap:
     variant: str = dataclasses.field(default="", metadata={"p": "variants"})
     kind: str = dataclasses.field(default="", metadata={"p": "kinds"})
     color: str = dataclasses.field(default="", metadata={"p": "colors"})
-    font: str = dataclasses.field(default="", metadata={"p": "fonts"})
 
     primary: Legend = dataclasses.field(
         default_factory=lambda: Legend("Primary"),
@@ -79,7 +77,7 @@ class Keycap:
         metadata={"p": "tertiaries", "l": True},
     )
 
-    rotate: float = dataclasses.field(default=0, metadata={"p": "rotates"})
+    rotate: float = dataclasses.field(default=0, metadata={"p": "rotations"})
     translucent: bool = dataclasses.field(default=False, metadata={"p": "translucents"})
     skip: bool = dataclasses.field(default=False, metadata={"p": "skips"})
     engraveDepth: float = dataclasses.field(default=0, metadata={"p": "engraveDepths"})
@@ -102,11 +100,11 @@ class Keycap:
             "KeepEngraved": self.keepEngraved,
         }
         if self.primary.legend:
-            ret.update(self.primary.to_dict(self, colormap))
+            ret.update(self.primary.to_dict(colormap))
         if self.secondary.legend:
-            ret.update(self.secondary.to_dict(self, colormap))
+            ret.update(self.secondary.to_dict(colormap))
         if self.tertiary.legend:
-            ret.update(self.tertiary.to_dict(self, colormap))
+            ret.update(self.tertiary.to_dict(colormap))
         return {k: v for k, v in ret.items() if v}
 
     @staticmethod
@@ -126,7 +124,7 @@ class Keycap:
 
     @property
     def batch_key(self) -> tuple[typing.Any, ...]:
-        key: list[typing.Any] = [self.color]
+        key: list[typing.Any] = [self.family, self.variant, self.kind, self.color]
         for leg in (self.primary, self.secondary, self.tertiary):
             if leg.legend:
                 key.append(leg.color or self.color)
@@ -185,7 +183,7 @@ def depluralize(data: PluralDict) -> dict[int, dict[str, typing.Any]]:
 class Row:
     name: str
 
-    keys: dict[int, Keycap]
+    keys: dict[str | int, Keycap]
 
     @staticmethod
     def from_data(name: str, default: Keycap, data: dict) -> Row:
@@ -210,13 +208,18 @@ class Row:
 
         base = default.with_data(singulars)
 
-        keys: dict[int, Keycap] = collections.defaultdict(lambda: copy.deepcopy(base))
+        keys: dict[str | int, Keycap] = collections.defaultdict(
+            lambda: copy.deepcopy(base)
+        )
         for idx, data in depluralize(plurals).items():
             keys[idx] = keys[idx].with_data(data)
         for legend, pdict in legend_plurals.items():
             for idx, data in depluralize(pdict).items():
                 key = keys[idx]
                 setattr(key, legend, getattr(key, legend).with_data(data))
+
+        if base.should_output:
+            keys["base"] = base
 
         return Row(name, keys)
 

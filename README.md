@@ -10,15 +10,16 @@ you'd be fine with totally unlabeled keys, too, but I like the aesthetic of
 labeled keys, already know how to touch type, and it also helps when explaining
 for my QWERTY-oriented friends).
 
-I wrote this as a spinoff of https://github.com/coredump/keycap-legends, which
-was a great intro to the topic, but a tad too slow (generating a single key took
-something like 10s on my machine, `engrave.scad` takes about 0.2s), buggy
-(certain legend settings caused the script to crash) and rigid (extending it to
-e.g. correct for projection on tilted keycaps was pretty tricky) for my tastes
-(something something vibecode something :smile:). I'm sure I could have poked
-and prodded an agent to get something better, but I enjoyed doing this one the
-old fashioned way (and now I have a basic understanding of OpenSCAD, which is
-neat!).
+I wrote this as a spinoff of [coredump/keycap-legends], which was a great intro
+to the topic, but a tad too slow (generating a single key took something like
+10s on my machine, `engrave.scad` takes about 0.2s), buggy (certain legend
+settings caused the script to crash) and rigid (extending it to e.g. correct for
+projection on tilted keycaps was pretty tricky) for my tastes (something
+something vibecode something :smile:). I'm sure I could have poked and prodded
+an agent to get something better, but I enjoyed doing this one the old fashioned
+way (and now I have a basic understanding of OpenSCAD, which is neat!). Plus,
+this one doesn't require anything other than the base OpenSCAD and python3,
+which is nice.
 
 ## Quickstart
 
@@ -79,6 +80,16 @@ all the keys for your keyboard at the same time.
 
 ### Generating engraved caps
 
+Ok, now we're ready to Get Serious :tm: and generate a whole keyboard.
+
+This can be done with `engrave.py caplist.toml`. Running this will (re)produce
+`engrave.json`, which the OpenSCAD UI will automatically load when loading
+`engrave.scad`, and will use to pre-populate the customizer with presets, one
+for each key on your keyboard.
+
+Customizing your keyboard comes down to customizing your own TOML file. See the
+[caplist.toml syntax](#caplist-toml).
+
 ## Notes on 3D printing keycaps
 
 ### FDM
@@ -91,6 +102,87 @@ all the keys for your keyboard at the same time.
 
 #### Caplist TOML
 
+The `caplist.toml` file has my particular keyboard layout, but should be a good
+jumping off point for anyone else intending to make a customized keyboard
+layout.
+
+It's syntax is [TOML](toml.io), and the expected fields are roughly:
+
+- `batch`: Settings for how to group rendered 3mf keycaps for printing.
+  - `size`: The target number of keycaps to include in a batch.
+- `colors.XXX`: Color mapping to allow the rest of the spec to use logical color
+  names instead of OpenSCAD color names like "white" or hexadecimal color codes.
+  Keys in this map are logical color names, and values are valid OpenSCAD
+  colors. Ex. `aux = "#F99963"` means that elsewhere in the config, color fields
+  can use `$aux` and get this nice creamy orange color instead.
+- `default`: A `Keycap` object to use as defaults for rows. See
+  [Keycap object](#keycap-object) below for syntax.
+- `rows.XXX`: Mapping of named rows to a hybrid Keycap/PluralKeycap. The names
+  can be anything you like; I used `r0`, etc. for the regular rows, then
+  `thumbs` for my oddball thumb keys on my lilly58, but you can name them
+  however you like. The values are both a [Keycap object](#keycap-object) as
+  well as a [Plural Keycap object](#plural-keycap-object). The base Keycap
+  object forms defaults for this row, and are applied on top of the top level
+  `default` section. The keycaps described by the PluralKeycap represent further
+  overrides applied on top of this base, and usually form the actual key caps
+  which will be emitted by the script. Note that if you set any legends in the
+  base Keycap, it will count as a renderable keycap, and will be included in the
+  output/as a preset as well. This can be useful where you have e.g. a single
+  centered key - you can just give it its own row and configure it directly as a
+  Keycap without worrying about Plural Keycap stuff.
+
+`engrave.py` will consume this document and will emit ANY keycap which has any
+non-empty legends at all. It produces `engrave.json` (for use with OpenSCAD
+preview), and will also use the `openscad` CLI tool to directly produce batched
+3mf files in the output/ directory. If `batch.size` is zero, no batching will
+occur.
+
+Batching works by categorizing keys by:
+
+- key family, variant, kind
+- key color
+- primary, secondary and tertiary colors (it does not currently account for
+  differently shifted legends!)
+- legend rotation
+
+Then filling batches up for each category up to `batch.size`. The intent is to
+group together keys which will print similarly and will be able to take
+advantage of shared filament changes at around the same layers (for multi-color
+FDM). You probably want to set this to zero for SLA/SLS.
+
+##### Keycap object
+
+Keycap objects in the TOML have the following fields:
+
+- `family` (str) - The [keycap family](#keycap-definitions).
+- `variant` (str) - The [keycap variant](#keycap-definitions).
+- `kind` (str) - The [keycap kind](#keycap-definitions).
+- `color` (str) - The OpenSCAD or logical color (e.g. `$aux`).
+- `primary` ([Legend](#legend-object)) - The primary legend.
+- `secondary` ([Legend](#legend-object)) - The secondary legend.
+- `tertiary` ([Legend](#legend-object)) - The tertiary legend.
+- `rotate` (float, degrees) - How much to rotate the legend.
+- `translucent` (bool) - See the [`KeyTranslucent`](#opt-key-translucent)
+  option.
+- `skip` (bool) - See the [`KeySkip`](#opt-key-skip) option.
+- `engraveDepth` (float) - See the [`EngraveDepth`](#opt-engrave-depth) option.
+- `keepEngraved` (bool) - See the [`KeepEngraved`](#opt-keep-engraved) option.
+
+##### Legend object
+
+Legend objects in the TOML have the following fields:
+
+- `legend` (str) - Legend text.
+- `font` (str) - The [OpenSCAD font].
+- `size` (str) - The size of the text.
+- `shiftXY` ([float, float]) - Shift the legend on the face of the keycap. See
+  [`{XXX}VecXY`](#opt-leg-vecxy).
+- `translucent` (bool) - See the [`{XXX}Translucent`](#opt-leg-translucent)
+  option.
+- `skip` (bool) - See the [`{XXX}Skip`](#opt-leg-skip) option.
+
+##### Plural Keycap object
+
 ### engrave.scad
 
 `engrave.scad` is the core of the magic in this repo.
@@ -98,10 +190,10 @@ all the keys for your keyboard at the same time.
 #### Keycap Definitions
 
 Keycaps are defined in the `caps/` directory, with each directory describing a
-separate 'family' of keycaps, with one or more 'variants'. Each variant is
+separate `family` of keycaps, with one or more `variant`s. Each variant is
 represented by a uniquely named JSON file, which tells `engrave.scad` where to
-find the STL for one or more particular keycap models within this family+variant
-combination.
+find the STL for one or more particular keycap `kind`s within this
+family+variant combination.
 
 Each keycap family has an `upstream` subdirectory (a Git submodule) which has
 the actual model files.
@@ -141,34 +233,36 @@ possible legends which can be carved into the keycap.
 - `KeyColor` - A valid OpenSCAD color.
 - `RotateLegendSet` - Rotate all the legends around the keycap's normal vector
   by this many degrees.
-- `KeyTranslucent` - In preview mode, this is useful for seeing the interior
-  extrusion of the legends into the keycap model.
-- `KeySkip` - Skip emitting the model entirely (e.g. just output the legend
-  models).
-- `EngraveDepth` - For SLA/SLS printing (or monochrome FDM printing) where you
-  intend to fill in the legend manually in some way (or just leave it as a
-  shallow indentation). If this is zero, then the model will extrude legend
-  models into the keycap model along the true Z axis (not the keycap face normal
-  vector) down to the keycap floor. With this > 0, it will instead do an engrave
-  extruded along the face normal with an even depth along the face of the
-  keycap. The intent is for SLA/SLS prints where you will fill the legends in as
-  a post-processing step somehow.
-- `KeepEngraved` - If `EngraveDepth` is > 0, keep the engraved legend models
-  anyway.
+- `KeyTranslucent` <a name="opt-key-translucent"></a>- In preview mode, this is
+  useful for seeing the interior extrusion of the legends into the keycap model.
+- `KeySkip` <a name="opt-key-skip"></a>- Skip emitting the model entirely (e.g.
+  just output the legend models).
+- `EngraveDepth` <a name="opt-engrave-depth"></a>- For SLA/SLS printing (or
+  monochrome FDM printing) where you intend to fill in the legend manually in
+  some way (or just leave it as a shallow indentation). If this is zero, then
+  the model will extrude legend models into the keycap model along the true Z
+  axis (not the keycap face normal vector) down to the keycap floor. With this >
+  0, it will instead do an engrave extruded along the face normal with an even
+  depth along the face of the keycap. The intent is for SLA/SLS prints where you
+  will fill the legends in as a post-processing step somehow.
+- `KeepEngraved` <a name="opt-keep-engraved"></a>- If `EngraveDepth` is > 0,
+  keep the engraved legend models anyway.
 - `{XXX}Legend` - The text to use for this legend. If blank, this legend will be
   skipped.
 - `{XXX}Color` - The color to use for this legend.
-- `{XXX}Font` - The OpenSCAD font string to use for this legend.
+- `{XXX}Font` - The [OpenSCAD font] string to use for this legend.
 - `{XXX}Size` - The text size to use for this legend (~= the height of the
   rendered text).
-- `{XXX}VecXY` - An [X, Y] vector on the plane perpendicular to the keycap's
-  face in which to slide this legend's text from center. `[0, 0]` would be dead
-  center.
-- `{}Skip` - Boolean indicating that this legend should be skipped when
-  rendering the output key. This legend will still be engraved into the model
-  (assuming the `{XXX}Legend` is not empty), but the geometry for the actual
-  legend will be omitted.
-- `{}Translucent` - Boolean indicating that this legend will be rendered as
-  translucent in the OpenSCAD preview.
+- `{XXX}VecXY` <a name="opt-leg-vecxy"></a>- An `[X, Y]` vector on the plane
+  perpendicular to the keycap's face in which to slide this legend's text from
+  center. `[0, 0]` would be dead center.
+- `{}Skip` <a name="opt-leg-skip"></a>- Boolean indicating that this legend
+  should be skipped when rendering the output key. This legend will still be
+  engraved into the model (assuming the `{XXX}Legend` is not empty), but the
+  geometry for the actual legend will be omitted.
+- `{}Translucent` <a name="opt-leg-translucent"></a>- Boolean indicating that
+  this legend will be rendered as translucent in the OpenSCAD preview.
 
+[coredump/keycap-legends]: https://github.com/coredump/keycap-legends
 [openscad]: https://openscad.org/
+[openscad font]: https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Text#Using_Fonts_&_Styles

@@ -11,14 +11,16 @@ mod = "#56B7E6"
 [default]
 family = "klp_lame"
 variant = "choc_choc"
-font = "FiraCode Nerd Font:style=Medium"
 color = "$cap"
 primary.size = 4
 primary.color = "$prim"
+primary.font = "FiraCode Nerd Font:style=Medium"
 secondary.size = 3
 secondary.color = "$aux"
+secondary.font = "FiraCode Nerd Font:style=Medium"
 tertiary.size = 3
 tertiary.color = "$sys"
+tertiary.font = "FiraCode Nerd Font:style=Medium"
 
 [rows.r0]
 kind = "nt"
