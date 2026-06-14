@@ -54,6 +54,10 @@ class Legend:
         return Legend(parse_variant(variant)).with_data(data)
 
     def with_data(self, data: dict) -> Legend:
+        # If any values are the default sentinel, reset the value to its default.
+        for key, value in data:
+            if value == []:
+                data[key] = getattr(Legend, key)
         return dataclasses.replace(self, **data)
 
 
@@ -118,6 +122,10 @@ class Keycap:
 
     def with_data(self, data: dict) -> Keycap:
         data = copy.deepcopy(data)
+        # If any values are the default sentinel, reset the value to its default.
+        for key, value in data:
+            if value == []:
+                data[key] = getattr(Legend, key)
         for leg in ("primary", "secondary", "tertiary"):
             if dat := data.pop(leg, None):
                 data[leg] = getattr(self, leg).with_data(dat)

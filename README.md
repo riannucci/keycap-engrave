@@ -136,6 +136,13 @@ It's syntax is [TOML](toml.io), and the expected fields are roughly:
   centered key - you can just give it its own row and configure it directly as a
   Keycap without worrying about Plural Keycap stuff.
 
+Any place where a specific value overrides the default, you can supply `[]` (an
+empty array) to indicate that this place should override back to that field's
+default (empty) value. So, say you had `primary.size = 6`, but in one particular
+row you wanted this to assume the default (which is currently `4`), you could
+use `primary.size = []` in that row to indicate this. I would have used `null`,
+but TOML is too cool to support null. Oh well.
+
 `engrave.py` will consume this document and will emit ANY keycap which has any
 non-empty legends at all. It produces `engrave.json` (for use with OpenSCAD
 preview), and will also use the `openscad` CLI tool to directly produce batched
