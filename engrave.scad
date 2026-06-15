@@ -29,56 +29,90 @@ EngraveDepth = 0; // [0:0.01:1]
 // Colored legends will be kept when in engrave mode.
 KeepEngraved = false;
 
-/* [Primary Legend] */
+/* [Legend1] */
 
 // Text
-PrimaryLegend = "P";
+Legend1Text = "P";
 // Color
-PrimaryColor = "white";
+Legend1Color = "white";
 // Font.
-PrimaryFont = "FiraCode Nerd Font:style=Medium";
+Legend1Font = "FiraCode Nerd Font:style=Medium";
 // Size.
-PrimarySize = 4; // [1:0.01:6]
+Legend1Size = 4; // [1:0.01:6]
 // Offset (X, Y) from center.
-PrimaryVecXY = [0, 3]; // [-4:.1:4]
+Legend1VecXY = [0, 3]; // [-4:.1:4]
 // Skip rendering the legend.
-PrimarySkip = false;
+Legend1Skip = false;
 // Rendering the legend as translucent.
-PrimaryTranslucent = false;
+Legend1Translucent = false;
 
-/* [Secondary Legend] */
+/* [Legend2] */
 
 // Text
-SecondaryLegend = "S";
+Legend2Text = "S";
 // Color
-SecondaryColor = "blue";
+Legend2Color = "blue";
 // Font
-SecondaryFont = "FiraCode Nerd Font:style=Medium";
+Legend2Font = "FiraCode Nerd Font:style=Medium";
 // Size
-SecondarySize = 3; // [1:0.01:6]
+Legend2Size = 3; // [1:0.01:6]
 // Offset (X, Y) from center.
-SecondaryVecXY = [-3, -3]; // [-4:.1:4]
+Legend2VecXY = [-3, -3]; // [-4:.1:4]
 // Skip rendering the legend.
-SecondarySkip = false;
+Legend2Skip = false;
 // Rendering the legend as translucent.
-SecondaryTranslucent = false;
+Legend2Translucent = false;
 
-/* [Tertiary Legend] */
+/* [Legend3] */
 
 // Text
-TertiaryLegend = "T";
+Legend3Text = "T";
 // Color
-TertiaryColor = "green";
+Legend3Color = "green";
 // Font
-TertiaryFont = "FiraCode Nerd Font:style=Medium";
+Legend3Font = "FiraCode Nerd Font:style=Medium";
 // Size
-TertiarySize = 3; // [1:0.01:6]
+Legend3Size = 3; // [1:0.01:6]
 // Offset (X, Y) from center.
-TertiaryVecXY = [3, -3]; // [-4:.1:4]
+Legend3VecXY = [3, -3]; // [-4:.1:4]
 // Skip rendering the legend.
-TertiarySkip = false;
+Legend3Skip = false;
 // Rendering the legend as translucent.
-TertiaryTranslucent = false;
+Legend3Translucent = false;
+
+/* [Legend4] */
+
+// Text
+Legend4Text = "4";
+// Color
+Legend4Color = "red";
+// Font
+Legend4Font = "FiraCode Nerd Font:style=Medium";
+// Size
+Legend4Size = 3; // [1:0.01:6]
+// Offset (X, Y) from center.
+Legend4VecXY = [3, 3]; // [-4:.1:4]
+// Skip rendering the legend.
+Legend4Skip = false;
+// Rendering the legend as translucent.
+Legend4Translucent = false;
+
+/* [Legend5] */
+
+// Text
+Legend5Text = "5";
+// Color
+Legend5Color = "purple";
+// Font
+Legend5Font = "FiraCode Nerd Font:style=Medium";
+// Size
+Legend5Size = 3; // [1:0.01:6]
+// Offset (X, Y) from center.
+Legend5VecXY = [-3, 3]; // [-4:.1:4]
+// Skip rendering the legend.
+Legend5Skip = false;
+// Rendering the legend as translucent.
+Legend5Translucent = false;
 
 caps = import(str("caps/", KeyFamily, "/", KeyVariant, ".json"));
 
@@ -151,9 +185,11 @@ module flopped() {
 }
 
 legends = [
-  [PrimaryLegend, PrimaryColor, PrimaryFont, PrimarySize, PrimaryVecXY],
-  [SecondaryLegend, SecondaryColor, SecondaryFont, SecondarySize, SecondaryVecXY],
-  [TertiaryLegend, TertiaryColor, TertiaryFont, TertiarySize, TertiaryVecXY, TertiarySkip],
+  [Legend1Text, Legend1Color, Legend1Font, Legend1Size, Legend1VecXY],
+  [Legend2Text, Legend2Color, Legend2Font, Legend2Size, Legend2VecXY],
+  [Legend3Text, Legend3Color, Legend3Font, Legend3Size, Legend3VecXY],
+  [Legend4Text, Legend4Color, Legend4Font, Legend4Size, Legend4VecXY],
+  [Legend5Text, Legend5Color, Legend5Font, Legend5Size, Legend5VecXY],
 ];
 
 module legend(leg, truncated = false) {
@@ -267,16 +303,24 @@ if (!KeySkip) {
         legend(legends[0]);
         legend(legends[1]);
         legend(legends[2]);
+        legend(legends[3]);
+        legend(legends[4]);
       }
 }
 
 // Each legend generated and colored separately.
-if (!PrimarySkip && (EngraveDepth == 0 || KeepEngraved)) {
-  maybeRender(PrimaryTranslucent) legend(legends[0], truncated=true);
+if (!Legend1Skip && (EngraveDepth == 0 || KeepEngraved)) {
+  maybeRender(Legend1Translucent) legend(legends[0], truncated=true);
 }
-if (!SecondarySkip && (EngraveDepth == 0 || KeepEngraved)) {
-  maybeRender(SecondaryTranslucent) legend(legends[1], truncated=true);
+if (!Legend2Skip && (EngraveDepth == 0 || KeepEngraved)) {
+  maybeRender(Legend2Translucent) legend(legends[1], truncated=true);
 }
-if (!TertiarySkip && (EngraveDepth == 0 || KeepEngraved)) {
-  maybeRender(TertiaryTranslucent) legend(legends[2], truncated=true);
+if (!Legend3Skip && (EngraveDepth == 0 || KeepEngraved)) {
+  maybeRender(Legend3Translucent) legend(legends[2], truncated=true);
+}
+if (!Legend4Skip && (EngraveDepth == 0 || KeepEngraved)) {
+  maybeRender(Legend4Translucent) legend(legends[3], truncated=true);
+}
+if (!Legend5Skip && (EngraveDepth == 0 || KeepEngraved)) {
+  maybeRender(Legend5Translucent) legend(legends[4], truncated=true);
 }

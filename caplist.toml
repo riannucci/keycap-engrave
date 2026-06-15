@@ -12,27 +12,27 @@ mod = "#56B7E6"
 family = "klp_lame"
 variant = "choc_choc"
 color = "$cap"
-primary.size = 4
-primary.color = "$prim"
-primary.font = "FiraCode Nerd Font:style=Medium"
-secondary.size = 3
-secondary.color = "$aux"
-secondary.font = "FiraCode Nerd Font:style=Medium"
-tertiary.size = 3
-tertiary.color = "$sys"
-tertiary.font = "FiraCode Nerd Font:style=Medium"
+legend.1.size = 4
+legend.1.color = "$prim"
+legend.1.font = "FiraCode Nerd Font:style=Medium"
+legend.2.size = 3
+legend.2.color = "$aux"
+legend.2.font = "FiraCode Nerd Font:style=Medium"
+legend.3.size = 3
+legend.3.color = "$sys"
+legend.3.font = "FiraCode Nerd Font:style=Medium"
 
 [rows.r0]
 kind = "nt"
-primaries.legend = ["[{", "!1", "@2", "#3", "$4", "%5", "^6", "&7", "*8", "(9", ")0", "]}"]
+legends.1.text = ["[{", "!1", "@2", "#3", "$4", "%5", "^6", "&7", "*8", "(9", ")0", "]}"]
 
 [rows.r1]
 kind = "n"
-tertiary.color   = "$sys"
+legend.3.color = "$sys"
 
-primaries.legend   = ["󰌒", "Q", "W", "F", "P", "B", "J", "L", "U", "Y", ":;", "_-"]
-secondaries.legend = ["󰝝", "󰖨", "",  "",  "",  "",  "",  "",  "",  "",  "",   ""]
-tertiaries.legend  = ["", "",  "",  "",  "",  "󱐥", "",  "",  "",  "",  "",   ""]
+legends.1.text = ["󰌒", "Q", "W", "F", "P", "B", "J", "L", "U", "Y", ":;", "_-"]
+legends.2.text = ["󰝝", "󰖨", "",  "",  "",  "",  "",  "",  "",  "",  "",   ""]
+legends.3.text = ["", "",  "",  "",  "",  "󱐥", "",  "",  "",  "",  "",   ""]
 
 [rows.r2]
 kind = "n"
@@ -40,31 +40,31 @@ kind = "n"
 # Override T and N as 'normal homing' key kinds.
 kinds.4 = "nh"
 kinds.7 = "nh"
-primaries.legend   = ["`~", "A", "R", "S", "T",  "G", "M", "N",  "E", "I", "O", "'\""]
-secondaries.legend = ["󰝞",  "", "󰒮", "󰐎", "󰒭",  "",  "",  "󰁍",  "󰁅", "󰁝", "󰁔", ""]
-tertiaries.legend  = ["󰜉",  "󰘴", "󰘵", "󰘳", "󰘶",  "", "",  "󰘶",  "󰘳", "󰘵", "󰘴", "󰜉"]
-tertiaries.color   = ["",  "$mod", "$mod", "$mod", "$mod", "", "", "$mod",  "$mod", "$mod", "$mod", ""]
+legends.1.text  = ["`~", "A", "R", "S", "T",  "G", "M", "N",  "E", "I", "O", "'\""]
+legends.2.text  = ["󰝞",  "", "󰒮", "󰐎", "󰒭",  "",  "",  "󰁍",  "󰁅", "󰁝", "󰁔", ""]
+legends.3.text  = ["󰜉",  "󰘴", "󰘵", "󰘳", "󰘶",  "", "",  "󰘶",  "󰘳", "󰘵", "󰘴", "󰜉"]
+legends.3.color = ["",  "$mod", "$mod", "$mod", "$mod", "", "", "$mod",  "$mod", "$mod", "$mod", ""]
 
 [rows.r3]
 kind = "nt"
 rotate = 180
 
-primaries.legend   = ["\\|",  "Z", "X", "C", "D", "V", "K",  "H",  ",<", ".>", "/?", "+="]
-secondaries.legend = ["󰝟",    "󰍽", "",  "󰓛", "",  "",  "",   "",   "",   "",   "",   ""]
-tertiaries.legend  = ["",    "",  "",  "",  "",  "", "󰂱¹", "󰂱²", "󰂱³", "󰂱⁴", "󰂱⁵", "󰂲"]
-tertiaries.color   = ["$mod", "",  "",  "",  "",  "",  "",   "",   "",   "",   "",   ""]
+legends.1.text  = ["\\|",  "Z", "X", "C", "D", "V", "K",  "H",  ",<", ".>", "/?", "+="]
+legends.2.text  = ["󰝟",    "󰍽", "",  "󰓛", "",  "",  "",   "",   "",   "",   "",   ""]
+legends.3.text  = ["",    "",  "",  "",  "",  "", "󰂱¹", "󰂱²", "󰂱³", "󰂱⁴", "󰂱⁵", "󰂲"]
+legends.3.color = ["$mod", "",  "",  "",  "",  "",  "",   "",   "",   "",   "",   ""]
 
 [rows.r4]
 kind = "st"
 
-primaries.color.3 = "$mod"
-primaries.color.4 = "$mod"
-primaries.legend   = ["",  "",  "󰭜", "HYP", "HYP", "󱁐", "",  ""]
-secondaries.legend = ["", "󰃕", "󱣱", "",    "",    "󰎠", "󰃕", ""]
+legends.1.color.3 = "$mod"
+legends.1.color.4 = "$mod"
+legends.1.text    = ["",  "",  "󰭜", "HYP", "HYP", "󱁐", "",  ""]
+legends.2.text    = ["", "󰃕", "󱣱", "",    "",    "󰎠", "󰃕", ""]
 
 [rows.thumbs]
 kind = "s1.5v"
 rotate = 90
 
-primaries.legend   = ["⎋", "󰌑"]
-secondaries.legend = ["󰘦", ""]
+legends.1.text = ["⎋", "󰌑"]
+legends.2.text = ["󰘦", ""]

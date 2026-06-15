@@ -12,25 +12,12 @@ import os
 import tomllib
 import typing
 
-Variant = typing.Literal["Primary", "Secondary", "Tertiary"]
-
-
-def parse_variant(v: str | Variant) -> Variant:
-    match v.capitalize():
-        case "Primary":
-            return "Primary"
-        case "Secondary":
-            return "Secondary"
-        case "Tertiary":
-            return "Tertiary"
-    raise ValueError(f"Unknown variant {v!r}")
-
 
 @dataclasses.dataclass
 class Legend:
-    variant: Variant
+    index: int
 
-    legend: str = ""
+    text: str = ""
     color: str = ""
     font: str = ""
     size: float = 0
@@ -39,23 +26,25 @@ class Legend:
     translucent: bool = False
 
     def to_dict(self, colormap: typing.Callable[[str], str]):
+        if not self.text:
+            return {}
         return {
-            f"{self.variant}Legend": self.legend,
-            f"{self.variant}Color": colormap(self.color),
-            f"{self.variant}Font": self.font,
-            f"{self.variant}Size": self.size,
-            f"{self.variant}VecXY": self.shiftXY,
-            f"{self.variant}Skip": self.skip,
-            f"{self.variant}Translucent": self.translucent,
+            f"Legend{self.index}Text": self.text,
+            f"Legend{self.index}Color": colormap(self.color),
+            f"Legend{self.index}Font": self.font,
+            f"Legend{self.index}Size": self.size,
+            f"Legend{self.index}VecXY": self.shiftXY,
+            f"Legend{self.index}Skip": self.skip,
+            f"Legend{self.index}Translucent": self.translucent,
         }
 
     @staticmethod
-    def from_data(variant: str | Variant, data: dict) -> Legend:
-        return Legend(parse_variant(variant)).with_data(data)
+    def from_data(variant: int, data: dict) -> Legend:
+        return Legend(variant).with_data(data)
 
     def with_data(self, data: dict) -> Legend:
         # If any values are the default sentinel, reset the value to its default.
-        for key, value in data:
+        for key, value in data.items():
             if value == []:
                 data[key] = getattr(Legend, key)
         return dataclasses.replace(self, **data)
@@ -68,17 +57,9 @@ class Keycap:
     kind: str = dataclasses.field(default="", metadata={"p": "kinds"})
     color: str = dataclasses.field(default="", metadata={"p": "colors"})
 
-    primary: Legend = dataclasses.field(
-        default_factory=lambda: Legend("Primary"),
-        metadata={"p": "primaries", "l": True},
-    )
-    secondary: Legend = dataclasses.field(
-        default_factory=lambda: Legend("Secondary"),
-        metadata={"p": "secondaries", "l": True},
-    )
-    tertiary: Legend = dataclasses.field(
-        default_factory=lambda: Legend("Tertiary"),
-        metadata={"p": "tertiaries", "l": True},
+    legend: dict[int, Legend] = dataclasses.field(
+        default_factory=dict,
+        metadata={"p": "legends"},
     )
 
     rotate: float = dataclasses.field(default=0, metadata={"p": "rotations"})
@@ -103,17 +84,13 @@ class Keycap:
             "EngraveDepth": self.engraveDepth,
             "KeepEngraved": self.keepEngraved,
         }
-        if self.primary.legend:
-            ret.update(self.primary.to_dict(colormap))
-        if self.secondary.legend:
-            ret.update(self.secondary.to_dict(colormap))
-        if self.tertiary.legend:
-            ret.update(self.tertiary.to_dict(colormap))
+        for legend in self.legend.values():
+            ret.update(legend.to_dict(colormap))
         # Filter all empty stuff out.
         ret = {k: v for k, v in ret.items() if v}
         # Explicitly add back empty legends - otherwise the file default will bleed through.
-        for legend in ("Primary", "Secondary", "Tertiary"):
-            ret.setdefault(f"{legend}Legend", "")
+        for legend in range(1, 6):
+            ret.setdefault(f"Legend{legend}Text", "")
         return ret
 
     @staticmethod
@@ -123,33 +100,38 @@ class Keycap:
     def with_data(self, data: dict) -> Keycap:
         data = copy.deepcopy(data)
         # If any values are the default sentinel, reset the value to its default.
-        for key, value in data:
+        for key, value in data.items():
             if value == []:
                 data[key] = getattr(Legend, key)
-        for leg in ("primary", "secondary", "tertiary"):
-            if dat := data.pop(leg, None):
-                data[leg] = getattr(self, leg).with_data(dat)
-        return dataclasses.replace(self, **data)
+        legend = data.pop("legend", {})
+        ret = dataclasses.replace(self, **data)
+        for legend_idx, leg in legend.items():
+            legend_idx = int(legend_idx)
+            if legend_idx not in self.legend:
+                self.legend[legend_idx] = Legend(legend_idx)
+            self.legend[legend_idx] = self.legend[legend_idx].with_data(leg)
+        return ret
 
     @property
     def should_output(self):
-        return self.primary.legend or self.secondary.legend or self.tertiary.legend
+        return any(l.text for l in self.legend.values())
 
     @property
     def batch_key(self) -> tuple[typing.Any, ...]:
         key: list[typing.Any] = [self.family, self.variant, self.kind, self.color]
-        for leg in (self.primary, self.secondary, self.tertiary):
-            if leg.legend:
-                key.append(leg.color or self.color)
+        for leg in self.legend.values():
+            if leg.text:
+                key.append(leg.color)
         if self.rotate:
             key.append(self.rotate)
         return tuple(key)
 
 
 PluralDict = dict[str, list[typing.Any] | dict[str, typing.Any]]
+SparseDict = dict[int, dict[str, typing.Any]]
 
 
-def depluralize(data: PluralDict) -> dict[int, dict[str, typing.Any]]:
+def depluralize(data: PluralDict) -> SparseDict:
     """Consumes either:
 
     {
@@ -206,13 +188,14 @@ class Row:
         # The plurals are dicts whose keys are Keycap fields, and whose values are
         # lists. All plural values MUST have the same length, or this will raise
         # an error. We will keep all keys which have a legend.
-        legend_plurals: dict[str, PluralDict] = collections.defaultdict(dict)
+        legend_plurals: dict[int, SparseDict] = collections.defaultdict(dict)
         plurals: PluralDict = collections.defaultdict(list)
         singulars = {}
         for field in dataclasses.fields(Keycap):
             if (plural := field.metadata["p"]) in data:
-                if "l" in field.metadata:
-                    legend_plurals[field.name] = data.pop(plural)
+                if plural == "legends":
+                    for idx, legend in data.pop(plural).items():
+                        legend_plurals[int(idx)] = depluralize(legend)
                 else:
                     plurals[field.name] = data.pop(plural)
 
@@ -228,10 +211,11 @@ class Row:
         )
         for idx, data in depluralize(plurals).items():
             keys[idx] = keys[idx].with_data(data)
-        for legend, pdict in legend_plurals.items():
-            for idx, data in depluralize(pdict).items():
-                key = keys[idx]
-                setattr(key, legend, getattr(key, legend).with_data(data))
+
+        for legend_idx, sdict in legend_plurals.items():
+            for key_idx, data in sdict.items():
+                key = keys[key_idx]
+                key.legend[legend_idx] = key.legend[legend_idx].with_data(data)
 
         if base.should_output:
             keys["base"] = base
@@ -321,14 +305,15 @@ def main() -> None:
     with open("engrave.json", "w") as f:
         json.dump({"parameterSets": presets, "fileFormatVersion": "1"}, f)
 
+    common_args = ["--enable", "lazy-union", "--enable", "import-function"]
+
     if args.preview:
 
         async def do_preview():
             await (
                 await asyncio.subprocess.create_subprocess_exec(
                     "openscad",
-                    "--enable",
-                    "all",
+                    *common_args,
                     "engrave.scad",
                 )
             ).wait()
@@ -345,7 +330,8 @@ def main() -> None:
 
             async def render(name: str):
                 async with sem:
-                    os.makedirs(os.path.dirname(name), exist_ok=True)
+                    outfile = f"output/{name}.3mf"
+                    os.makedirs(os.path.dirname(outfile), exist_ok=True)
                     await (
                         await asyncio.subprocess.create_subprocess_exec(
                             "openscad",
@@ -354,9 +340,8 @@ def main() -> None:
                             "-P",
                             name,
                             "-o",
-                            f"output/{name}.3mf",
-                            "--enable",
-                            "all",
+                            outfile,
+                            *common_args,
                             "engrave.scad",
                         )
                     ).wait()

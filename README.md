@@ -138,10 +138,10 @@ It's syntax is [TOML](toml.io), and the expected fields are roughly:
 
 Any place where a specific value overrides the default, you can supply `[]` (an
 empty array) to indicate that this place should override back to that field's
-default (empty) value. So, say you had `primary.size = 6`, but in one particular
-row you wanted this to assume the default (which is currently `4`), you could
-use `primary.size = []` in that row to indicate this. I would have used `null`,
-but TOML is too cool to support null. Oh well.
+default (empty) value. So, say you had `legend.1.size = 6`, but in one
+particular row you wanted this to assume the default (which is currently `4`),
+you could use `legend.1.size = []` in that row to indicate this. I would have
+used `null`, but TOML is too cool to support null. Oh well.
 
 `engrave.py` will consume this document and will emit ANY keycap which has any
 non-empty legends at all. It produces `engrave.json` (for use with OpenSCAD
@@ -153,8 +153,7 @@ Batching works by categorizing keys by:
 
 - key family, variant, kind
 - key color
-- primary, secondary and tertiary colors (it does not currently account for
-  differently shifted legends!)
+- legend colors (it does not currently account for differently shifted legends!)
 - legend rotation
 
 Then filling batches up for each category up to `batch.size`. The intent is to
@@ -178,20 +177,20 @@ colors.bonus = "#56B7E6" # An blueish color.
 family = "klp_lame"
 variant = "choc_choc"
 color = "$dark"  # references our custom color table above
-primary.size = 4
-primary.color = "$light"
-primary.font = "FiraCode Nerd Font:style=Medium"
-secondary.size = 3
-secondary.color = "$aux"
-secondary.font = "FiraCode Nerd Font:style=Medium"
-# To keep things simple, we only use primary/secondary here.
+legend.1.size = 4
+legend.1.color = "$light"
+legend.1.font = "FiraCode Nerd Font:style=Medium"
+legend.2.size = 3
+legend.2.color = "$aux"
+legend.2.font = "FiraCode Nerd Font:style=Medium"
+# To keep things simple, we only use two legends here.
 
 [rows.top]
 kind = "nt"  # this is 'normal tilted' in caps/klp_lame/choc_choc.json
 
 # Now define key 0 as "A_" and key 1 as "B+" using the plural array syntax.
-primaries.legend   = ["A", "B"]
-secondaries.legend = ["_", "+"]
+legends.1.text = ["A", "B"]
+legends.2.text = ["_", "+"]
 
 [rows.bottom]
 # Same type for the example, but we're going to rotate these.
@@ -200,11 +199,11 @@ kind = "nt"
 # on the row closer to us.
 rotate = 180 
 
-primaries.legend = ["X", "Y", "Z"]
-# We only want a secondary legend on the middle key, so use the sparse array
+legends.1.text = ["X", "Y", "Z"]
+# We only want a legend.2 legend on the middle key, so use the sparse array
 # syntax. Let's color the "!" a different color, too.
-secondaries.legend.1 = "!"
-secondaries.color.1 = "$bonus"
+legends.2.text.1 = "!"
+legends.2.color.1 = "$bonus"
 ```
 
 ##### Keycap object
@@ -215,9 +214,9 @@ Keycap objects in the TOML have the following fields:
 - `variant` (str) - The [keycap variant](#keycap-definitions).
 - `kind` (str) - The [keycap kind](#keycap-definitions).
 - `color` (str) - The OpenSCAD or logical color (e.g. `$aux`).
-- `primary` ([Legend](#legend-object)) - The primary legend.
-- `secondary` ([Legend](#legend-object)) - The secondary legend.
-- `tertiary` ([Legend](#legend-object)) - The tertiary legend.
+- `legend.X` ([Legend](#legend-object)) - The legends - currently the script
+  supports 5, numbered 1 through 5. The first legend is high-center, and the
+  other 4 are arranged in the four corners of the key.
 - `rotate` (float, degrees) - How much to rotate the legend.
 - `translucent` (bool) - See the [`KeyTranslucent`](#opt-key-translucent)
   option.
@@ -229,14 +228,14 @@ Keycap objects in the TOML have the following fields:
 
 Legend objects in the TOML have the following fields:
 
-- `legend` (str) - Legend text.
+- `text` (str) - Legend text.
 - `font` (str) - The [OpenSCAD font].
 - `size` (str) - The size of the text.
 - `shiftXY` ([float, float]) - Shift the legend on the face of the keycap. See
-  [`{XXX}VecXY`](#opt-leg-vecxy).
-- `translucent` (bool) - See the [`{XXX}Translucent`](#opt-leg-translucent)
+  [`Legend{X}VecXY`](#opt-leg-vecxy).
+- `translucent` (bool) - See the [`Legend{X}Translucent`](#opt-leg-translucent)
   option.
-- `skip` (bool) - See the [`{XXX}Skip`](#opt-leg-skip) option.
+- `skip` (bool) - See the [`Legend{X}Skip`](#opt-leg-skip) option.
 
 ##### Plural Keycap object
 
@@ -251,13 +250,11 @@ Rows are a union of all [Keycap fields](#keycap-object) plus the following:
 - `variants` - Corresponds to `Keycap.variant`.
 - `kinds` - Corresponds to `Keycap.kind`.
 - `colors` - Corresponds to `Keycap.color`.
-- `primaries` - Corresponds to `Keycap.primary`.
+- `rotations` - Corresponds to `Keycap.rotate`.
 - `skips` - Corresponds to `Keycap.skips`.
 - `engraveDepths` - Corresponds to `Keycap.engraveDepth`.
 - `keepEngraveds` - Corresponds to `Keycap.keepEngraved`.
-- `secondaries` (`recursive`) - Corresponds to `Keycap.secondary`.
-- `tertiaries` (`recursive`) - Corresponds to `Keycap.tertiary`.
-- `rotations` (`recursive`) - Corresponds to `Keycap.rotate`.
+- `legends.X` (`recursive`) - Corresponds to `Keycap.legend.X`.
 
 (The fields marked (`recursive`) are special; I'll talk about those below the
 example)
@@ -298,9 +295,9 @@ As an example, to set a bunch of legend text, without changing any other aspects
 of the legends (like font or color), you can do:
 
 ```toml
-primaries.legend = ['A', 'B', 'C']
+legends.1.text = ['A', 'B', 'C']
 # just add '!' as a secondary legend for 'B'
-secondaries.legend.1 = '!' 
+legends.2.text.1 = '!' 
 ```
 
 This is probably a bit confusing, but it makes for very readable config files.
@@ -346,9 +343,6 @@ example.
 
 #### Options
 
-`{XXX}` below means `Primary`, `Secondary`, or `Tertiary`, refering to the three
-possible legends which can be carved into the keycap.
-
 - `KeyFamily` - A folder name under `caps/` in this repo. Currently:
   - [klp_lame](https://github.com/braindefender/KLP-Lame-Keycaps)
   - [clp_keycaps](https://github.com/vvhg1/clp-keycaps)
@@ -372,21 +366,21 @@ possible legends which can be carved into the keycap.
   will fill the legends in as a post-processing step somehow.
 - `KeepEngraved` <a name="opt-keep-engraved"></a>- If `EngraveDepth` is > 0,
   keep the engraved legend models anyway.
-- `{XXX}Legend` - The text to use for this legend. If blank, this legend will be
-  skipped.
-- `{XXX}Color` - The color to use for this legend.
-- `{XXX}Font` - The [OpenSCAD font] string to use for this legend.
-- `{XXX}Size` - The text size to use for this legend (~= the height of the
+- `Legend{X}Text` - The text to use for this legend. If blank, this legend will
+  be skipped.
+- `Legend{X}Color` - The color to use for this legend.
+- `Legend{X}Font` - The [OpenSCAD font] string to use for this legend.
+- `Legend{X}Size` - The text size to use for this legend (~= the height of the
   rendered text).
-- `{XXX}VecXY` <a name="opt-leg-vecxy"></a>- An `[X, Y]` vector on the plane
+- `Legend{X}VecXY` <a name="opt-leg-vecxy"></a>- An `[X, Y]` vector on the plane
   perpendicular to the keycap's face in which to slide this legend's text from
   center. `[0, 0]` would be dead center.
-- `{XXX}Skip` <a name="opt-leg-skip"></a>- Boolean indicating that this legend
-  should be skipped when rendering the output key. This legend will still be
-  engraved into the model (assuming the `{XXX}Legend` is not empty), but the
-  geometry for the actual legend will be omitted.
-- `{XXX}Translucent` <a name="opt-leg-translucent"></a>- Boolean indicating that
-  this legend will be rendered as translucent in the OpenSCAD preview.
+- `Legend{X}Skip` <a name="opt-leg-skip"></a>- Boolean indicating that this
+  legend should be skipped when rendering the output key. This legend will still
+  be engraved into the model (assuming the `Legend{X}Legend` is not empty), but
+  the geometry for the actual legend will be omitted.
+- `Legend{X}Translucent` <a name="opt-leg-translucent"></a>- Boolean indicating
+  that this legend will be rendered as translucent in the OpenSCAD preview.
 
 ## Notes on 3D printing keycaps
 
