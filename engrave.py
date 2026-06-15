@@ -9,6 +9,7 @@ import itertools
 import json
 import multiprocessing
 import os
+import re
 import tomllib
 import typing
 
@@ -226,6 +227,11 @@ class Row:
 @dataclasses.dataclass
 class BatchConfig:
     size: int = 10
+    finished: list[str] = dataclasses.field(default_factory=list)
+
+    @property
+    def finished_pat(self) -> re.Pattern:
+        return re.compile("^(" + ")|(".join(self.finished) + ")$")
 
 
 @dataclasses.dataclass
@@ -257,9 +263,13 @@ class Global:
 
     def batched(self) -> list[dict[str, Keycap]]:
         ret = {}
+        finish_pat = self.batch.finished_pat
         for rowName, row in self.rows.items():
             for i, cap in row.keys.items():
-                ret[f"{rowName}_{i}"] = cap
+                name = f"{rowName}_{i}"
+                if finish_pat.match(name):
+                    continue
+                ret[name] = cap
         if not self.batch.size:
             return [ret]
         by_color: dict[tuple[typing.Any, ...], list[tuple[str, Keycap]]] = (

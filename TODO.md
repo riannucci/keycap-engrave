@@ -1,16 +1,23 @@
 # TODO
 
 - Ensure this works with MX style keycaps.
+
 - Give it the ability to engrave on surfaces other than the face (e.g. front
   printed). Probably good to combo with engrave.
+
 - Add json for other keycaps
+
 - Add support for STEP inputs.
+
 - Add support for SCAD inputs (will probably need to switch to `use` for the
   model, as well as a config of how to call the relevant module).
+
 - Add support for negative engraving to allow font to bump out from key surface
   (and make sure this supports Braille unicode dot patterns). This will probably
   also require making the negative engrave have a rounded exterior.
+
 - Add support for per-key slant as well as tilt.
+
 - Add support for non-vertical extrusion for FDM. Sometimes it's nice to be able
   to print keycaps on an incline (e.g. 70 degrees) rather than verticallys (e.g.
   to reduce visible scarring on the surface of the cap visible when it's
@@ -20,4 +27,9 @@
   invisible/interior portions of the legends. Or maybe upstream a feature to
   OrcaSlicer to allow filtering away invisible filament changes? Seems like it
   could be generally useful...
+
+- Make batching a bit smarter - it should be able to combine batches which use a
+  subset of colors in the same legend slots. It may be useful to tell the
+  batching algorithm how many flush-free colors the printer can do.
+
 - Add proper README.md.
