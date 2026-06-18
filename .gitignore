@@ -1,4 +1,5 @@
 __pycache__
 engrave.json
+ignorelist.json
 *.3mf
 nohup.out

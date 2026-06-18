@@ -115,10 +115,6 @@ It's syntax is [TOML](toml.io), and the expected fields are roughly:
 
 - `batch`: Settings for how to group rendered 3mf keycaps for printing.
   - `size`: The target number of keycaps to include in a batch.
-  - `finished`: An array of keycap names to exclude. These will have the form
-    `XXX_NNN` where `XXX` is the name of the row, and `NNN` is the index of the
-    keycap within that row. This is useful to filter out keycaps which you've
-    already finished printing if you're playing with batch configuration, etc.
 - `colors.XXX`: Color mapping to allow the rest of the spec to use logical color
   names instead of OpenSCAD color names like "white" or hexadecimal color codes.
   Keys in this map are logical color names, and values are valid OpenSCAD
@@ -311,6 +307,15 @@ Check out the live config example in [`caplist.toml`](./caplist.toml).
 
 `engrave.scad` is the core of the magic in this repo. It implements all the
 model/font manipulation logic to generate useful geometry for printing.
+
+#### Ignorelist JSON
+
+The ignore list is a simple JSON list of regexes to skip when generating the
+preview JSON/rendered keycaps. This is very useful when you have a lot of
+keycaps to print, and you want to remove the ones that you've already finished.
+
+These will match key names of the form `XXX_NNN` where `XXX` is the name of the
+row, and `NNN` is the index of the keycap within that row.
 
 #### Keycap Definitions
 

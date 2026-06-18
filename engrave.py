@@ -227,11 +227,11 @@ class Row:
 @dataclasses.dataclass
 class BatchConfig:
     size: int = 10
-    finished: list[str] = dataclasses.field(default_factory=list)
+    ignorelist: list[str] = dataclasses.field(default_factory=list)
 
     @property
     def finished_pat(self) -> re.Pattern:
-        return re.compile("^(" + ")|(".join(self.finished) + ")$")
+        return re.compile("^(" + ")|(".join(self.ignorelist) + ")$")
 
 
 @dataclasses.dataclass
@@ -245,8 +245,10 @@ class Global:
     colors: dict[str, str] = dataclasses.field(default_factory=dict)
 
     @staticmethod
-    def from_data(data: dict) -> Global:
-        batch = BatchConfig(**data.pop("batch", {}))
+    def from_data(data: dict, ignorelist: list[str]) -> Global:
+        batchRaw = data.pop("batch", {})
+        batchRaw["ignorelist"] = ignorelist
+        batch = BatchConfig(**batchRaw)
         colors = data.pop("colors", {})
         default = Keycap.from_data(data.pop("default", {}))
         rows = {}
@@ -301,11 +303,20 @@ def main() -> None:
         action="store_true",
         help="If set, render all caps to output/",
     )
+    parser.add_argument(
+        "--ignorelist",
+        "-i",
+        help="Path to a TOML which is a list of regexes of key names to skip.",
+    )
     parser.add_argument("input_toml", help="Path to the input TOML file")
     args: argparse.Namespace = parser.parse_args()
 
     with open(args.input_toml, "rb") as f:
-        parsed = Global.from_data(tomllib.load(f))
+        ignorelist = []
+        if args.ignorelist:
+            with open(args.ignorelist, "rb") as igf:
+                ignorelist = json.load(igf)
+        parsed = Global.from_data(tomllib.load(f), ignorelist)
 
     presets = {}
     for i, batch in enumerate(parsed.batched()):
