@@ -42,5 +42,26 @@
   },
   "t1.5v": {
     "stl": "Choc_Stem_Choc_Size_1.5U_Thumb_V.stl"
+  },
+  "n90": {
+    "stl": "90 deg Rotated/Choc_Stem_Choc_Size_Normal_90deg.stl"
+  },
+  "nh90": {
+    "stl": "90 deg Rotated/Choc_Stem_Choc_Size_Normal_Homing_90deg.stl"
+  },
+  "nt90": {
+    "stl": "90 deg Rotated/Choc_Stem_Choc_Size_Normal_Tilted_90deg.stl"
+  },
+  "s90": {
+    "stl": "90 deg Rotated/Choc_Stem_Choc_Size_Saddle_90deg.stl"
+  },
+  "sh90": {
+    "stl": "90 deg Rotated/Choc_Stem_Choc_Size_Saddle_Homing_90deg.stl"
+  },
+  "st90": {
+    "stl": "90 deg Rotated/Choc_Stem_Choc_Size_Saddle_Tilted_90deg.stl"
+  },
+  "t90": {
+    "stl": "90 deg Rotated/Choc_Stem_Choc_Size_Thumb_90deg.stl"
   }
 }

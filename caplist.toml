@@ -63,6 +63,11 @@ legends.3.color = ["$mod", "",  "",  "",  "",  "",  "",   "",   "",   "",   "", 
 [rows.r4]
 kind = "st"
 
+rotations.2 = 90
+rotations.5 = 270
+kinds.2 = "st90"
+kinds.5 = "st90"
+
 legends.1.color.3 = "$mod"
 legends.1.color.4 = "$mod"
 legends.1.text    = ["",  "",  "󰭜", "HYP", "HYP", "󱁐", "",  ""]
