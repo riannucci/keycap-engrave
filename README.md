@@ -27,6 +27,16 @@ Here's my lily58 with [KLP Lamé] keycaps made with these scripts:
 
 ![Final result with FDM caps](./docs/photos/ResultShot.jpg)
 
+Note that the photo shows banding (caused, I think, by different layer times due
+to the need to switch filaments at these layers), and also some white scuff
+marks at the bottom of the keycaps (due to the post processing I needed to do to
+remove visible overhang extrusions with a file and sandpaper). Neither of these
+issues affects the keyboard's usability, and both issues are much less noticable
+in person vs in the photo.
+
+See [the section on FDM printing](#fdm) for how I printed these, and what I
+would have done differently, given more time and money :p.
+
 ## Quickstart
 
 ### Prerequisites
@@ -395,7 +405,53 @@ example.
 
 ### FDM
 
+I printed my current keys on a Bambulab H2D using the Bambu matte PLA filaments
+(black, white, orange, green and blue). This was done with the black on the
+right extruder, and the other colors on the left extruder, both with the 0.2mm
+nozzle. They were printed with a 0.06mm layer height (this is *super* thin)
+which worked out to about 275 layers, giving the keycap face a very nice texture
+with lots of resolution available for the legends themselves.
+
+![Screenshot of OrcaSlicer](./docs/photos/Slicer.png)
+
+I printed keycaps standing on their side (90degrees upright) with supports and
+seams on the 'back'. This will only work well (I think) with choc stems, because
+they can be fully supported and printed very cleanly in this orientation. I
+would expect more of an issue printing MX stems in this orientation.
+
+These prints take a fair amount of time! I think I probably spent a good 40
+hours of print time just for the lilly58. Additionally, as you can see, the keys
+require some post processing to knock down the overhangs on the side of the
+keycap touching the plate. That said, I'm extremely pleased with the surface
+texture of the keycaps, as well as the legibility of the legends. (I've also
+heard that mineral oil can help remove the white plastic haze... I haven't tried
+this yet, but if I decide to I'll update here as well).
+
+If I had the funds, I would like to try this on an H2C (or similar... maybe one
+of those Prusa INDX machines? :smile:) with all the filaments loaded into
+separate tools, plus maybe a support interface material (usually PETG works well
+for this on PLA). That said, I suspect you're not going to get perfect
+overhangs, even with a support interface material. It would probably be worth
+playing with some other print orientations which still give good resolution on
+the keycap face, but maybe minimize the amount of overhangs on the top/bottom of
+the keycap, while still providing strong and good-fitting stems. In order to do
+this nicely, `engrave.scad` and the script will need to gain some more features
+to learn how to do the extrusions not exactly along the Z axis, but along the
+intended print axis.
+
+Printing keycaps with filament switching on the same nozzle does generate a
+bunch of waste, however. The purge/wipe towers (which are present even for multi
+toolhead machines) are also fairly significant. That said, with careful batching
+I think it's possible to minimize the effects of this somewhat. I suspect I
+probably had no more than 100g of wasted filament (across the 5 spools).
+
 ### SLS/SLA
+
+I haven't tried this yet, but the engrave scripts are set up to allow the
+legends to be done as true recessed surfaces of even depth. In theory, it should
+be possible to print keycaps on resin/nylon, and then fill the legends with...
+something... to color them. If you try this, let me know, I'd be very curious
+how it goes :).
 
 [coredump/keycap-legends]: https://github.com/coredump/keycap-legends
 [klp lamé]: https://github.com/braindefender/KLP-Lame-Keycaps
