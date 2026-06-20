@@ -26,6 +26,7 @@ which is nice.
 Here's my lily58 with [KLP Lamé] keycaps made with these scripts:
 
 ![Final result with FDM caps](./docs/photos/ResultShot.jpg)
+![Closeup of bottom right side on left half](./docs/photos/KeycapCloseup.jpg)
 
 Note that the photo shows banding (caused, I think, by different layer times due
 to the need to switch filaments at these layers), and also some white scuff
