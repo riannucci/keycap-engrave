@@ -25,7 +25,7 @@ which is nice.
 
 Here's my lily58 with [KLP Lamé] keycaps made with these scripts:
 
-> TODO: Actually take a photo when the keyboard is done lol ^\_^.
+![Final result with FDM caps](./docs/photos/ResultShot.jpg)
 
 ## Quickstart
 
